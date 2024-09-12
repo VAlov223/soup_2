@@ -1,0 +1,12 @@
+.blackStyleButton { 
+    background-color: black;
+    color: white;
+    border-radius: 10px;
+    padding: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.blackStyleButton:hover { 
+    background-color: grey;
+}
