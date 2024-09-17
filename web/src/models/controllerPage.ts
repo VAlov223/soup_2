@@ -9,8 +9,9 @@ export interface Patient {
 }
 
 export interface ControllerPageState {
-  patient: Patient | null ;
+  patient: Patient | null;
   nextDoctors: string[];
+  isReturn: boolean;
   step: string;
   patientFinishDoctor: string | null;
   isAdditional: boolean;
@@ -20,11 +21,12 @@ export interface ControllerPageState {
 function createEmptyControllerPageState() {
   return {
     patient: null,
+    isReturn: false,
     step: "getPatient",
     patientFinishDoctor: null,
     nextDoctors: [],
     isAdditional: false,
-    queue: "", 
+    queue: "",
   } as ControllerPageState;
 }
 
@@ -33,7 +35,6 @@ const DEFAULT_STATE = createEmptyControllerPageState();
 export const controllerPage = createModel<RootModel>()({
   state: DEFAULT_STATE,
   reducers: {
-
     nextStep(state) {
       const steps = ["getPatient", "nextDoctors", "finishPatient"];
 
@@ -54,15 +55,12 @@ export const controllerPage = createModel<RootModel>()({
       return { ...state, step: "break" };
     },
 
-    setPatientFinishDoctor(state, payload) { 
-      return {...state, patientFinishDoctor: payload}
-    }, 
+    setPatientFinishDoctor(state, payload) {
+      return { ...state, patientFinishDoctor: payload };
+    },
 
     setPatient(state, payload) {
-      if ("id" in payload) {
-        return { ...state, patient: payload };
-      }
-      return { ...state };
+      return { ...state, patient: payload };
     },
 
     setAdditional(state, payload) {
@@ -73,15 +71,21 @@ export const controllerPage = createModel<RootModel>()({
       return { ...state, step: "getPatient" };
     },
 
-    setQueue(state, payload) { 
-      return {...state, queue: payload}
-    }, 
+    setQueue(state, payload) {
+      return { ...state, queue: payload };
+    },
 
     addNextDoctor(state, payload) {
-      console.log(state.nextDoctors)
       if (!state.nextDoctors.includes(payload)) {
         return { ...state, nextDoctors: [...state.nextDoctors, payload] };
+      } else {
+        const next = state.nextDoctors.filter((el) => el !== payload);
+        return { ...state, nextDoctors: next };
       }
+    },
+
+    changeReturn(state) {
+      return { ...state, isReturn: !state.isReturn };
     },
 
     reload(state) {

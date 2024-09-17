@@ -2,16 +2,20 @@ import React from "react";
 import * as styles from "./NextDoctors.module.css";
 import ready from "../../assets/ready.svg";
 import load from "../../assets/loadData.gif";
+import { Patient } from "../../models/controllerPage";
 
 interface NextDoctorsProps {
+  patient: Patient | null;
   addNextDoctor: (value: string) => void;
   nextDoctors: string[];
-  doctors: string[];
   queueName: string;
+  isReturn: boolean;
+  changeReturn: () => void;
   fetchUrl: string;
 }
 
 export function NextDoctors(props: NextDoctorsProps) {
+  const { queueName, nextDoctors, addNextDoctor, patient } = props;
   const [allDoctors, setAllDoctors] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
 
@@ -36,24 +40,52 @@ export function NextDoctors(props: NextDoctorsProps) {
     getData();
   }, []);
 
-  const renderDoctorButton = (element: string) => {
-    let name = element 
-    if (element == props.queueName) {
-      name  = "Вернуть ко мне";
-    }
-    if (props.doctors.includes(element)) {
+  const renderDoctorButton = () => {
+    return allDoctors.map((element, index) => {
+      if (element == props.queueName) {
+        return (
+          <div
+            className={`col-3 mb-2 ${styles.nextButton}`}
+            onClick={props.changeReturn}
+          >
+            Вернуть ко мне
+            {props.isReturn ? (
+              <img
+                src={ready}
+                width={20}
+                height={20}
+                className="position-absolute"
+                style={{ top: -5, right: -10 }}
+              />
+            ) : null}
+          </div>
+        );
+      }
+
       return (
-        <img
-          src={ready}
-          width={20}
-          height={20}
-          className="position-absolute"
-          style={{ top: -5, right: -10 }}
-        />
+        <div
+          className={`col-3 mb-2 ${styles.nextButton}`}
+          onClick={(ev: any) => addNextDoctor(element)}
+          style={{
+            pointerEvents: props.patient?.doctors.includes(element)
+              ? "none"
+              : "auto",
+          }}
+        >
+          {element}
+          {nextDoctors.includes(element) ||
+          props.patient?.doctors.includes(element) ? (
+            <img
+              src={ready}
+              width={20}
+              height={20}
+              className="position-absolute"
+              style={{ top: -5, right: -10 }}
+            />
+          ) : null}
+        </div>
       );
-    }
-
-
+    });
   };
 
   return (
@@ -65,22 +97,7 @@ export function NextDoctors(props: NextDoctorsProps) {
             className="row justify-content-center"
             style={{ width: "60%", margin: "0 auto", gap: "4%" }}
           >
-            {allDoctors.map((element, index) => {
-              return (
-                <div className={`col-3 mb-2 ${styles.nextButton}`}>
-                  {element == props.queueName ? "Вернуть ко мне" : element}
-                  {props.doctors.includes(element) ? (
-                    <img
-                      src={ready}
-                      width={20}
-                      height={20}
-                      className="position-absolute"
-                      style={{ top: -5, right: -10 }}
-                    />
-                  ) : null}
-                </div>
-              );
-            })}
+            {renderDoctorButton()}
           </div>
           <div
             className="row"

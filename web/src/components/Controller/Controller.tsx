@@ -26,13 +26,15 @@ export function Controller(props: ControllerPageStateProps) {
     setPatient,
     setPatientFinishDoctor,
     step,
-    nextDoctors, 
+    nextDoctors,
     patient,
     isAdditional,
     setBreakStep,
     addNextDoctor,
     reload,
     finishBreak,
+    changeReturn, 
+    isReturn,
     nextStep,
     name,
     queue,
@@ -49,7 +51,7 @@ export function Controller(props: ControllerPageStateProps) {
     window.addEventListener("beforeunload", leave);
 
     return () => {
-      reload()
+      reload();
       window.removeEventListener("beforeunload", leave);
     };
   }, []);
@@ -59,7 +61,7 @@ export function Controller(props: ControllerPageStateProps) {
       clearInterval(polling.current);
       polling.current = false;
     }
-    setPatient(null)
+    setPatient(null);
     setBreakStep();
   };
 
@@ -108,7 +110,6 @@ export function Controller(props: ControllerPageStateProps) {
   };
 
   const renderBreakBtn = () => {
-
     if (step == "break") {
       return (
         <img
@@ -121,7 +122,7 @@ export function Controller(props: ControllerPageStateProps) {
       );
     }
 
-    if (step == "finishPatient" ||  patient?.id == "-1" || !patient) {
+    if (step == "finishPatient" || patient?.id == "-1" || !patient) {
       return (
         <img
           onClick={setBreak}
@@ -168,7 +169,7 @@ export function Controller(props: ControllerPageStateProps) {
     return "Технический перерыв";
   }
 
-  console.log(patient, 'patient')
+  console.log(patient, "patient");
 
   const renderStep = () => {
     switch (step) {
@@ -191,14 +192,12 @@ export function Controller(props: ControllerPageStateProps) {
       case "nextDoctors":
         return (
           <NextDoctors
+            patient={patient}
             addNextDoctor={addNextDoctor}
-            doctors={
-              typeof patient == "object" && patient?.doctors
-                ? patient?.doctors
-                : []
-            }
             queueName={queue}
             nextDoctors={nextDoctors}
+            isReturn={isReturn}
+            changeReturn={changeReturn}
             fetchUrl="/api/queue"
           />
         );
@@ -276,10 +275,12 @@ const mapState = (state: RootState) => ({
   nextDoctors: state.controllerPage.nextDoctors,
   step: state.controllerPage.step,
   queue: state.controllerPage.queue,
+  isReturn: state.controllerPage.isReturn
 });
 
 const mapDispatch = (dispatch: Dispatch) => ({
-  setPatient: (patient: Patient | null) => dispatch.controllerPage.setPatient(patient),
+  setPatient: (patient: Patient | null) =>
+    dispatch.controllerPage.setPatient(patient),
   setPatientFinishDoctor: (next: string) =>
     dispatch.controllerPage.setPatientFinishDoctor(next),
   setBreakStep: () => dispatch.controllerPage.setBreak(),
@@ -287,8 +288,11 @@ const mapDispatch = (dispatch: Dispatch) => ({
   nextStep: () => dispatch.controllerPage.nextStep(),
   addNextDoctor: (value: string) =>
     dispatch.controllerPage.addNextDoctor(value),
-  reload: () => { 
-    dispatch.controllerPage.reload()
+  reload: () => {
+    dispatch.controllerPage.reload();
+  },
+  changeReturn: () => { 
+    dispatch.controllerPage.changeReturn()
   }
 });
 
