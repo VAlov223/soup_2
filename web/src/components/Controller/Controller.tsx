@@ -59,6 +59,7 @@ export function Controller(props: ControllerPageStateProps) {
       clearInterval(polling.current);
       polling.current = false;
     }
+    setPatient(null)
     setBreakStep();
   };
 
@@ -278,7 +279,7 @@ const mapState = (state: RootState) => ({
 });
 
 const mapDispatch = (dispatch: Dispatch) => ({
-  setPatient: (patient: Patient) => dispatch.controllerPage.setPatient(patient),
+  setPatient: (patient: Patient | null) => dispatch.controllerPage.setPatient(patient),
   setPatientFinishDoctor: (next: string) =>
     dispatch.controllerPage.setPatientFinishDoctor(next),
   setBreakStep: () => dispatch.controllerPage.setBreak(),

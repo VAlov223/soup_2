@@ -17,7 +17,7 @@ interface AdminPageOutletProps {
   deleteEl: (data?: string) => void;
   reload: boolean;
   openAddModal: boolean;
-  setOpenAddModal: (data: boolean) => void;               
+  setOpenAddModal: (data: boolean) => void;
 }
 
 export function AdminPageOutlet(props: AdminPageOutletProps) {
@@ -466,9 +466,16 @@ function AddModal(props: AddModalProps) {
         const baseUrl = `${window.location.protocol}//${window.location.host}/`;
         // const data = await fetch(`${baseUrl}${fetchUrl}/?search=${search}`);
         const data = await fetch(`http://localhost:3000/api/queue`);
+        const doctorsData = await fetch(`http://localhost:3000/api/doctor`);
+        const jsonDoctors = await doctorsData.json();
         const jsonData = await data.json();
+        console.log(jsonDoctors, "jsonDoctors");
         if (jsonData.queues) {
-          setDirections(jsonData.queues);
+          setDirections(
+            jsonData.queues.filter(
+              (element: any) => !jsonDoctors.additionals.includes(element)
+            )
+          );
         }
       } catch (err) {
         console.error(err);

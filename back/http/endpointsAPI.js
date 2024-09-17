@@ -558,11 +558,35 @@ app.put("/api/doctor", async (req, res) => {
           { new: true, upsert: true }
         );
 
+        const queue = new QueueModel({
+          name: newDoctor,
+          classic_queue: [],
+          gold_queue: [],
+          return_queue: [],
+          patients_in_cabinets: {},
+          truant_queue: [],
+          check: false,
+        });
+  
+        const resultQueue = await queue.save();
+  
+        const resultWeigth = await WeightModel.findOneAndUpdate(
+          {},
+          {
+            $set: {
+              [newDoctor]: { classic_queue: 0, gold_queue: 0, return_queue: 0 },
+            },
+          },
+          { new: true, upsert: true }
+        );
+
+        
         resultCabinet = await CabinetsModel.findOneAndUpdate(
           {},
           { $push: { all: newDoctor, free: newDoctor } },
           { new: true, upsert: true }
         );
+
       } else {
         result = await DoctorsModel.findOneAndUpdate(
           {},
