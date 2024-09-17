@@ -58,11 +58,17 @@ export function Controller(props: ControllerPageStateProps) {
     };
   }, []);
 
+  const stopBreak = () => { 
+    socket.emit("finishBreak", { cabinet });
+    finishBreak()
+  }
+
   const setBreak = () => {
     if (polling.current) {
       clearInterval(polling.current);
       polling.current = false;
     }
+    socket.emit("setBreak", { cabinet });
     setPatient(null);
     setBreakStep();
   };
@@ -115,7 +121,7 @@ export function Controller(props: ControllerPageStateProps) {
     if (step == "break") {
       return (
         <img
-          onClick={finishBreak}
+          onClick={stopBreak}
           src={play}
           width={30}
           height={30}

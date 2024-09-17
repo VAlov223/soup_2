@@ -25,6 +25,8 @@ function ReadyScreen(props: ScreenStateProps) {
 
   const { socket, isConnected } = useSocket();
 
+  console.log(isBreak)
+
   React.useEffect(() => {
     const deleteSocket = () => {
       socket.off("controllerLeave", controllerLeave);
@@ -80,12 +82,15 @@ function ReadyScreen(props: ScreenStateProps) {
   }, [isConnected]);
 
   const renderNumber = () => {
+    if (!patient || patient == "-1") {
+      return <p></p>;
+    }
     if (isBreak && isActive) {
-      return <p id="pause">Проветривание</p>;
+      return <p >Проветривание</p>;
     } else if (isActive) {
-      return <h2 id="main_number">{patient}</h2>;
+      return <h2 >{patient}</h2>;
     } else if (!isActive) {
-      return <p id="not-active">Прием не ведётся</p>;
+      return <p >Прием не ведётся</p>;
     }
   };
 
