@@ -68,14 +68,17 @@ export function NextDoctors(props: NextDoctorsProps) {
           className={`col-3 mb-2 ${styles.nextButton}`}
           onClick={(ev: any) => addNextDoctor(element)}
           style={{
-            pointerEvents: props.patient?.doctors.includes(element)
-              ? "none"
-              : "auto",
+            pointerEvents:
+              props.patient?.doctors.includes(element) ||
+              props.patient?.returnTo.includes(element)
+                ? "none"
+                : "auto",
           }}
         >
           {element}
           {nextDoctors.includes(element) ||
-          props.patient?.doctors.includes(element) ? (
+          props.patient?.doctors.includes(element) ||
+          props.patient?.returnTo.includes(element) ? (
             <img
               src={ready}
               width={20}
