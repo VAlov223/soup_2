@@ -18,14 +18,14 @@ function ReadyScreen(props: ScreenStateProps) {
     setBreak,
     finishBreak,
     setUnActive,
-    setActive, 
+    setActive,
     setPatient,
     cabinet,
   } = props;
 
   const { socket, isConnected } = useSocket();
 
-  console.log(isBreak)
+  console.log(isBreak);
 
   React.useEffect(() => {
     const deleteSocket = () => {
@@ -37,6 +37,7 @@ function ReadyScreen(props: ScreenStateProps) {
     };
 
     const controllerLeave = () => {
+      console.log(10);
       setUnActive();
     };
 
@@ -47,12 +48,12 @@ function ReadyScreen(props: ScreenStateProps) {
     };
 
     const aboutController = (message: any) => {
-      console.log('yees')
+      console.log("yees");
       const { doctor, patient } = message;
-      console.log(patient)
+      console.log(patient);
       setDoctor(doctor);
       setPatient(patient);
-      setActive()
+      setActive();
     };
 
     const goBreak = () => {
@@ -60,7 +61,7 @@ function ReadyScreen(props: ScreenStateProps) {
     };
 
     const stopBreak = () => {
-      console.log(20)
+      console.log(20);
       finishBreak();
     };
 
@@ -71,26 +72,24 @@ function ReadyScreen(props: ScreenStateProps) {
       socket.on("setBreak", goBreak);
       socket.on("finishBreak", stopBreak);
       socket.on("aboutController", aboutController);
-    }
-
-    else { 
-      console.log('сбрасываем')
-      deleteSocket()
+    } else {
+      console.log("сбрасываем");
+      deleteSocket();
     }
 
     return deleteSocket;
   }, [isConnected]);
 
   const renderNumber = () => {
-    if (!patient || patient == "-1") {
+    if (!isActive) {
+      return <p>Прием не ведётся</p>;
+    } else if (!patient || patient == "-1") {
       return <p></p>;
     }
     if (isBreak && isActive) {
-      return <p >Проветривание</p>;
+      return <p>Проветривание</p>;
     } else if (isActive) {
-      return <h2 >{patient}</h2>;
-    } else if (!isActive) {
-      return <p >Прием не ведётся</p>;
+      return <h2>{patient}</h2>;
     }
   };
 
@@ -134,7 +133,7 @@ const mapDispatch = (dispatch: Dispatch) => ({
   finishBreak: () => dispatch.screenPage.finishBreak(),
   setPatient: (patient: any) => dispatch.screenPage.setPatient(patient),
   setUnActive: () => dispatch.screenPage.setUnActive(),
-  setActive: () => dispatch.screenPage.setActive(), 
+  setActive: () => dispatch.screenPage.setActive(),
 });
 
 type StateProps = ReturnType<typeof mapState>;
