@@ -5,6 +5,7 @@ import { Navigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import load from "../assets/loadData.gif";
 import { ConnectController } from "../components/Controller/Controller";
+import { splitByFirstOccurrence } from "../services/splitChar";
 
 interface ControllerPageProps {
   fetchUrl: string;
@@ -32,13 +33,15 @@ export function ControllerPage(props: ControllerPageStateProps) {
           console.log(jsonData?.isAdditional, "sfsdfsdf");
           props.setAdditional(isAdditional);
           let queue = "";
-          let name = ""
+          let name = "";
           if (isAdditional) {
             queue = doctor || "";
           } else {
-            queue = doctor?.split("-")[1].trim() || "";
-            name = doctor?.split("-")[0].trim() || "";
-            setName(name)
+            const doctorSplit = splitByFirstOccurrence(doctor, '-')
+            console.log(doctorSplit, 'doctorSplit')
+            name = typeof doctorSplit == "object" ? doctorSplit[0].trim() : "";
+            queue = typeof doctorSplit == "object" ? doctorSplit[1].trim() : "";
+            setName(name);
           }
           props.setQueue(queue);
           setCheck(true);

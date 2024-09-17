@@ -161,7 +161,14 @@ io.on("connection", (socket) => {
               queue.classic_queue.length == 0 &&
               queue.return_queue.length == 0
             ) {
-              io.to(cabinet).emit("newPatient",  {newPatient: {id: "-1", isGold: false, doctors: [], returnTo: [] }});
+              io.to(cabinet).emit("newPatient", {
+                newPatient: {
+                  id: "-1",
+                  isGold: false,
+                  doctors: [],
+                  returnTo: [],
+                },
+              });
               session.endSession();
               return;
             }
@@ -232,6 +239,7 @@ io.on("connection", (socket) => {
             if (patient) {
               queue.patients_in_cabinets.delete(cabinet);
               queue.markModified("patients_in_cabinets");
+
               if (patient.doctors.length == 0) {
                 patient.returnTo = patient.returnTo.filter(
                   (element) => element !== queueName
@@ -246,8 +254,6 @@ io.on("connection", (socket) => {
                 patient.doctors = [...patient.doctors, ...nextDoctors];
               }
 
-              console.log(returnTo, 24321);
-
               if (returnTo) {
                 patient.returnTo = [...patient.returnTo, queueName];
               }
@@ -256,6 +262,9 @@ io.on("connection", (socket) => {
                 await queue.save();
                 await session.commitTransaction();
                 session.endSession();
+                socket.emit("nextPatientDoctor", {
+                  nextPatientDoctor: "Отсутствует",
+                });
                 return;
               }
 
@@ -270,7 +279,6 @@ io.on("connection", (socket) => {
               } else if (patient.returnTo.length > 0) {
                 needQueue = "return_queue";
               }
-
 
               let resultDoctor = { doctor: 0, weight: 1000 };
 
@@ -399,7 +407,7 @@ app.get("/api/checkController/:name/:cabinet", async (req, res) => {
   const name = req.params.name;
   const cabinet = req.params.cabinet;
 
-  console.log(name, cabinet)
+  console.log(name, cabinet);
 
   if (isDatabaseConnected) {
     const doc = await DoctorsModel.findOne();
@@ -567,9 +575,9 @@ app.put("/api/doctor", async (req, res) => {
           truant_queue: [],
           check: false,
         });
-  
+
         const resultQueue = await queue.save();
-  
+
         const resultWeigth = await WeightModel.findOneAndUpdate(
           {},
           {
@@ -580,13 +588,11 @@ app.put("/api/doctor", async (req, res) => {
           { new: true, upsert: true }
         );
 
-        
         resultCabinet = await CabinetsModel.findOneAndUpdate(
           {},
           { $push: { all: newDoctor, free: newDoctor } },
           { new: true, upsert: true }
         );
-
       } else {
         result = await DoctorsModel.findOneAndUpdate(
           {},
@@ -812,7 +818,6 @@ app.post("/api/patient", async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
-
       let resultDoctor = { doctor: 0, weight: 1000 };
       const weight = await WeightModel.findOne();
 
@@ -827,7 +832,7 @@ app.post("/api/patient", async (req, res) => {
         }
       });
 
-      console.log(resultDoctor)
+      console.log(resultDoctor);
 
       if (resultDoctor.doctor) {
         const doctorName = resultDoctor.doctor;
@@ -848,9 +853,7 @@ app.post("/api/patient", async (req, res) => {
         }
       }
 
-      return res
-        .status(500)
-        .json({ message: "Ошибка при обновлении данных"});
+      return res.status(500).json({ message: "Ошибка при обновлении данных" });
 
       // return res.json(deleteQueue);
     } catch (error) {

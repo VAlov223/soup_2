@@ -27,13 +27,14 @@ export function Controller(props: ControllerPageStateProps) {
     setPatientFinishDoctor,
     step,
     nextDoctors,
+    patientFinishDoctor,
     patient,
     isAdditional,
     setBreakStep,
     addNextDoctor,
     reload,
     finishBreak,
-    changeReturn, 
+    changeReturn,
     isReturn,
     nextStep,
     name,
@@ -52,6 +53,7 @@ export function Controller(props: ControllerPageStateProps) {
 
     return () => {
       reload();
+      socket.emit("leaveGroup", { cabinet, clientType: "controller" });
       window.removeEventListener("beforeunload", leave);
     };
   }, []);
@@ -199,10 +201,21 @@ export function Controller(props: ControllerPageStateProps) {
             isReturn={isReturn}
             changeReturn={changeReturn}
             fetchUrl="/api/queue"
+            nextStep={nextStep}
           />
         );
       case "finishPatient":
-        return <FinishPatient />;
+        return (
+          <FinishPatient
+            cabinet={cabinet}
+            queueName={queue}
+            patientFinishDoctor={patientFinishDoctor}
+            nextStep={nextStep}
+            patient={patient}
+            isReturn={isReturn}
+            nextDoctors={nextDoctors}
+          />
+        );
       default:
         null;
     }
@@ -275,7 +288,8 @@ const mapState = (state: RootState) => ({
   nextDoctors: state.controllerPage.nextDoctors,
   step: state.controllerPage.step,
   queue: state.controllerPage.queue,
-  isReturn: state.controllerPage.isReturn
+  isReturn: state.controllerPage.isReturn,
+  patientFinishDoctor: state.controllerPage.patientFinishDoctor,
 });
 
 const mapDispatch = (dispatch: Dispatch) => ({
@@ -291,9 +305,9 @@ const mapDispatch = (dispatch: Dispatch) => ({
   reload: () => {
     dispatch.controllerPage.reload();
   },
-  changeReturn: () => { 
-    dispatch.controllerPage.changeReturn()
-  }
+  changeReturn: () => {
+    dispatch.controllerPage.changeReturn();
+  },
 });
 
 type StateProps = ReturnType<typeof mapState>;

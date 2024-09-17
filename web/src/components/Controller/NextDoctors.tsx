@@ -12,6 +12,7 @@ interface NextDoctorsProps {
   isReturn: boolean;
   changeReturn: () => void;
   fetchUrl: string;
+  nextStep: () => void;
 }
 
 export function NextDoctors(props: NextDoctorsProps) {
@@ -104,6 +105,7 @@ export function NextDoctors(props: NextDoctorsProps) {
             style={{ gap: "3%", width: "20%", margin: "0 auto" }}
           >
             <div
+              onClick={() => props.nextStep()}
               className={`${styles.buttonStep} col`}
               style={{ backgroundColor: "#44944A", fontSize: "1rem" }}
             >

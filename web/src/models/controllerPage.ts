@@ -39,11 +39,21 @@ export const controllerPage = createModel<RootModel>()({
       const steps = ["getPatient", "nextDoctors", "finishPatient"];
 
       if (state.isAdditional && state.step == "getPatient") {
-        return { ...state, step: "finishPatient" };
+        return {
+          ...state,
+          step: "finishPatient",
+        };
       }
 
       if (state.step == "finishPatient") {
-        return { ...state, step: "getPatient" };
+        return {
+          ...state,
+          step: "getPatient",
+          patient: null,
+          nextDoctors: [],
+          patientFinishDoctor: null,
+          isReturn: false,
+        };
       }
 
       let nextStep = steps.indexOf(state.step);
