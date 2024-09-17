@@ -13,6 +13,7 @@ interface ControllerPageProps {
 export function ControllerPage(props: ControllerPageStateProps) {
   const [check, setCheck] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
+  const [name, setName] = React.useState("");
   const { cabinet, doctor } = useParams();
 
   React.useEffect(() => {
@@ -31,10 +32,13 @@ export function ControllerPage(props: ControllerPageStateProps) {
           console.log(jsonData?.isAdditional, "sfsdfsdf");
           props.setAdditional(isAdditional);
           let queue = "";
+          let name = ""
           if (isAdditional) {
             queue = doctor || "";
           } else {
             queue = doctor?.split("-")[1].trim() || "";
+            name = doctor?.split("-")[0].trim() || "";
+            setName(name)
           }
           props.setQueue(queue);
           setCheck(true);
@@ -69,6 +73,7 @@ export function ControllerPage(props: ControllerPageStateProps) {
         <ConnectController
           cabinet={cabinet as string}
           doctor={doctor as string}
+          name={name}
         />
       )}
     </>

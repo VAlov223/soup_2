@@ -17,7 +17,7 @@ interface AdminPageOutletProps {
   deleteEl: (data?: string) => void;
   reload: boolean;
   openAddModal: boolean;
-  setOpenAddModal: (data: boolean) => void;
+  setOpenAddModal: (data: boolean) => void;               
 }
 
 export function AdminPageOutlet(props: AdminPageOutletProps) {

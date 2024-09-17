@@ -109,8 +109,8 @@ function DoctorPageComponent(props: DoctorPageProps) {
   };
 
   if (isAdditional) {
-    const to = `/controller/УЗИ/'УЗИ'`;
-    return <Navigate to="/controller/УЗИ/УЗИ" />;
+    const to = `/controller/${name}/${name}`;
+    return <Navigate to={to} />;
   }
 
   if (name && cabinet) {

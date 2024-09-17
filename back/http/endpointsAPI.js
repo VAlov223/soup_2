@@ -161,7 +161,7 @@ io.on("connection", (socket) => {
               queue.classic_queue.length == 0 &&
               queue.return_queue.length == 0
             ) {
-              io.to(cabinet).emit("newPatient", { newPatinet: -1 });
+              io.to(cabinet).emit("newPatient",  {newPatient: {id: "-1", isGold: false, doctors: [], returnTo: [] }});
               session.endSession();
               return;
             }
@@ -399,6 +399,8 @@ app.get("/api/checkController/:name/:cabinet", async (req, res) => {
   const name = req.params.name;
   const cabinet = req.params.cabinet;
 
+  console.log(name, cabinet)
+
   if (isDatabaseConnected) {
     const doc = await DoctorsModel.findOne();
     const cab = await CabinetsModel.findOne();
@@ -615,7 +617,7 @@ app.put("/api/queue", async (req, res) => {
         {},
         {
           $set: {
-            [newQueue]: { classic_queue: [], gold_queue: [], return_queue: [] },
+            [newQueue]: { classic_queue: 0, gold_queue: 0, return_queue: 0 },
           },
         },
         { new: true, upsert: true }
@@ -786,6 +788,7 @@ app.post("/api/patient", async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
+
       let resultDoctor = { doctor: 0, weight: 1000 };
       const weight = await WeightModel.findOne();
 
@@ -799,6 +802,8 @@ app.post("/api/patient", async (req, res) => {
           }
         }
       });
+
+      console.log(resultDoctor)
 
       if (resultDoctor.doctor) {
         const doctorName = resultDoctor.doctor;
@@ -821,7 +826,7 @@ app.post("/api/patient", async (req, res) => {
 
       return res
         .status(500)
-        .json({ message: "Ошибка при обновлении данных", error });
+        .json({ message: "Ошибка при обновлении данных"});
 
       // return res.json(deleteQueue);
     } catch (error) {

@@ -1,0 +1,12 @@
+.buttonStep { 
+    padding: 2% 3%;
+    font-size: 0.8rem;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    border-radius: 5px;
+    color: black;
+    align-items: center;
+    color: white;
+    cursor: pointer;
+}

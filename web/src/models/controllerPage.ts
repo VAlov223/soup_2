@@ -9,7 +9,7 @@ export interface Patient {
 }
 
 export interface ControllerPageState {
-  patient: Patient | null | -1;
+  patient: Patient | null ;
   nextDoctors: string[];
   step: string;
   patientFinishDoctor: string | null;
@@ -33,11 +33,12 @@ const DEFAULT_STATE = createEmptyControllerPageState();
 export const controllerPage = createModel<RootModel>()({
   state: DEFAULT_STATE,
   reducers: {
+
     nextStep(state) {
-      const steps = ["getPatient", "addDoctors", "finishPatient"];
+      const steps = ["getPatient", "nextDoctors", "finishPatient"];
 
       if (state.isAdditional && state.step == "getPatient") {
-        return { ...state, step: "getPatient" };
+        return { ...state, step: "finishPatient" };
       }
 
       if (state.step == "finishPatient") {
@@ -45,6 +46,7 @@ export const controllerPage = createModel<RootModel>()({
       }
 
       let nextStep = steps.indexOf(state.step);
+
       return { ...state, step: steps[nextStep + 1] };
     },
 
@@ -76,6 +78,7 @@ export const controllerPage = createModel<RootModel>()({
     }, 
 
     addNextDoctor(state, payload) {
+      console.log(state.nextDoctors)
       if (!state.nextDoctors.includes(payload)) {
         return { ...state, nextDoctors: [...state.nextDoctors, payload] };
       }
