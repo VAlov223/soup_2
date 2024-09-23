@@ -11,7 +11,7 @@ import { GetPatient } from "./GetPatient";
 import { Break } from "./Break";
 import { NextDoctors } from "./NextDoctors";
 import { FinishPatient } from "./FinishPatient";
-import { validate } from "webpack";
+import { useNavigate } from "react-router-dom";
 
 interface ControllerProps {
   cabinet: string;
@@ -41,8 +41,9 @@ export function Controller(props: ControllerPageStateProps) {
     queue,
   } = props;
   const { socket, isConnected } = useSocket();
-
+  const [exit, setExit] = React.useState(false);
   const polling = React.useRef<any>(false);
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     const leave = () => {
@@ -58,10 +59,15 @@ export function Controller(props: ControllerPageStateProps) {
     };
   }, []);
 
-  const stopBreak = () => { 
+  const stopBreak = () => {
     socket.emit("finishBreak", { cabinet });
-    finishBreak()
-  }
+    finishBreak();
+  };
+
+  const leaveController = () => {
+    reload();
+    navigate("/"); // Укажите путь, на который нужно перейти
+  };
 
   const setBreak = () => {
     if (polling.current) {
@@ -177,6 +183,51 @@ export function Controller(props: ControllerPageStateProps) {
     return "Технический перерыв";
   }
 
+  const renderExit = () => {
+    return (
+      <div
+        className="d-flex justify-content-center align-items-center h-100 w-100"
+        style={{
+          width: "100vw",
+          height: "100vh",
+          position: "absolute",
+          top: 0,
+          left: 0,
+          backgroundColor: "rgba(0,0,0,0.2)",
+        }}
+      >
+        <div
+          className="p-3 d-flex justify-content-center align-items-center flex-column"
+          style={{
+            gap: "22px",
+            width: "30%",
+            minHeight: "20%",
+            backgroundColor: "white",
+            borderRadius: "10px",
+          }}
+        >
+          <div style={{ marginBottom: "5%", textAlign: "center" }}>
+            Вы уверены, что хотите закончить прием?
+          </div>
+          <div className="d-flex justify-content-around align-items-center w-100">
+            <div
+              style={{ color: "green", cursor: "pointer" }}
+              onClick={() => leaveController()}
+            >
+              Да
+            </div>
+            <div
+              style={{ color: "red", cursor: "pointer" }}
+              onClick={() => setExit(false)}
+            >
+              Нет
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   console.log(patient, "patient");
 
   const renderStep = () => {
@@ -228,63 +279,67 @@ export function Controller(props: ControllerPageStateProps) {
   };
 
   return (
-    <div
-      className="w-100 h-100 d-flex justify-content-center align-items-center"
-      style={{ backgroundColor: "rgb(248, 248, 255)" }}
-    >
+    <>
+      {exit && renderExit()}
       <div
-        style={{
-          minHeight: "70%",
-          minWidth: "70%",
-          backgroundColor: "white",
-          borderRadius: "10px",
-        }}
-        className=" p-3 d-flex flex-column"
+        className="w-100 h-100 d-flex justify-content-center align-items-center"
+        style={{ backgroundColor: "rgb(248, 248, 255)" }}
       >
-        <div className="d-flex align-items-start justify-content-between">
-          {renderBreakBtn()}
-          <div className="d-flex flex-column">
-            <div
-              style={{
-                fontSize: "1.1rem",
-                textAlign: "center",
-                fontWeight: "500",
-              }}
-            >
-              {name}
-            </div>
-            <div
-              className="w-100"
-              style={{ height: "2px", backgroundColor: "black" }}
-            ></div>
-            <div
-              style={{
-                fontSize: "1rem",
-                textAlign: "center",
-                fontWeight: "500",
-              }}
-            >
-              {queue}
-            </div>
-          </div>
-          <img
-            src={redCross}
-            width={20}
-            height={20}
-            style={{ cursor: "pointer" }}
-          />
-        </div>
-        <div className="flex-fill d-flex justify-content-center">
-          {renderStep()}
-        </div>
         <div
-          className="d-flex justify-content-center"
-          style={{ fontSize: "1.1rem" }}
+          style={{
+            minHeight: "70%",
+            minWidth: "70%",
+            backgroundColor: "white",
+            borderRadius: "10px",
+          }}
+          className=" p-3 d-flex flex-column"
         >
-          {`Вы ведете прием в ${cabinet}`}
+          <div className="d-flex align-items-start justify-content-between">
+            {renderBreakBtn()}
+            <div className="d-flex flex-column">
+              <div
+                style={{
+                  fontSize: "1.1rem",
+                  textAlign: "center",
+                  fontWeight: "500",
+                }}
+              >
+                {name}
+              </div>
+              <div
+                className="w-100"
+                style={{ height: "2px", backgroundColor: "black" }}
+              ></div>
+              <div
+                style={{
+                  fontSize: "1rem",
+                  textAlign: "center",
+                  fontWeight: "500",
+                }}
+              >
+                {queue}
+              </div>
+            </div>
+            <img
+              src={redCross}
+              onClick={() => setExit(true)}
+              width={20}
+              height={20}
+              style={{ cursor: "pointer" }}
+            />
+          </div>
+          <div className="flex-fill d-flex justify-content-center">
+            {renderStep()}
+          </div>
+          <div
+            className="d-flex justify-content-center"
+            style={{ fontSize: "1.1rem" }}
+          >
+            {`Вы ведете прием в ${cabinet}`}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
