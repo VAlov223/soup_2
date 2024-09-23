@@ -163,7 +163,7 @@ export function Controller(props: ControllerPageStateProps) {
     if (isConnected) {
       const goPatinet =
         patient && typeof patient == "object" ? patient?.id : "Прием идет";
-      socket.emit("joinGroup", {
+        socket.emit("joinGroup", {
         cabinet,
         clientType: "controller",
         doctor,
@@ -177,7 +177,7 @@ export function Controller(props: ControllerPageStateProps) {
     }
 
     return deleteSocket;
-  }, [isConnected, patient]);
+  }, [isConnected]);
 
   if (!isConnected) {
     return "Технический перерыв";
