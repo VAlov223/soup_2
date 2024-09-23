@@ -160,9 +160,10 @@ export function AdminCabinets() {
   const [openAddModal, setOpenAddModal] = React.useState(false);
   const cabinetDataRender = (data: { [P: string]: any }) => {
     let result: string[] = [];
+    if (data)  {
     if ("all" in data) {
       result = data.all;
-    }
+    } }
     return result.sort();
   };
 
@@ -217,11 +218,12 @@ export function AdminDoctors() {
   const [openAddModal, setOpenAddModal] = React.useState(false);
   const doctorDataRender = (data: { [P: string]: any }) => {
     let result: string[] = [];
+    if (data)  {
     Object.values(data).forEach((element: any) => {
       if (element && Array.isArray(element)) {
         result = [...result, ...element];
       }
-    });
+    }); }
     console.log(result.sort());
     return result;
   };
@@ -282,9 +284,10 @@ export function AdminQueue() {
   const [openAddModal, setOpenAddModal] = React.useState(false);
   const queuerDataRender = (data: { [P: string]: any }) => {
     let result: string[] = [];
+    if (data) {
     if ("queues" in data) {
       result = data.queues;
-    }
+    } }
     return result.sort();
   };
 
