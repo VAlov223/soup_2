@@ -39,23 +39,23 @@ function DoctorPageComponent(props: DoctorPageProps) {
 
   const doctorDataRender = (data: { [P: string]: any }) => {
     let result: string[] = [];
+    if (data) {
     Object.values(data).forEach((element: any) => {
       if (element && Array.isArray(element)) {
         result = [...result, ...element];
       }
-    });
+    });} 
     console.log(result.sort());
     return result;
   };
 
   const cabinetDataRender = (data: { [P: string]: any }) => {
     let result: string[] = [];
-    console.log(data);
-    console.log(step);
-    console.log(10);
+    if (data) {
+      console.log(data)
     if ("free" in data) {
       result = data.free;
-    }
+    }}
     return result.sort();
   };
 
