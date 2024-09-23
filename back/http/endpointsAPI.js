@@ -812,6 +812,7 @@ app.post("/api/patient", async (req, res) => {
   }
 
   const { doctors, isGold } = patient;
+
   let goldOrClassic = isGold ? "gold_queue" : "classic_queue";
 
   if (isDatabaseConnected) {
@@ -820,6 +821,13 @@ app.post("/api/patient", async (req, res) => {
     try {
       let resultDoctor = { doctor: 0, weight: 1000 };
       const weight = await WeightModel.findOne();
+
+      for (const element of doctors) {
+        const queue = await QueueModel.findOne({ name: element }).exec();
+        if (!queue) {
+          throw new Error(`Queue not found for doctor: ${element}`);
+        }
+      }
 
       doctors.forEach((element) => {
         const checker = weight[element];
