@@ -1,6 +1,6 @@
 import React from "react";
 import { useSocket } from "../Socket";
-import * as styles from "./FinishPatient.module.css"
+import * as styles from "./FinishPatient.module.css";
 
 interface FinishPatientProps {
   patientFinishDoctor: null | string;
@@ -9,11 +9,23 @@ interface FinishPatientProps {
   patient: any;
   nextDoctors: string[];
   isReturn: boolean;
+  name: string;
+  isAdditional: boolean;
   nextStep: () => void;
+  reload: () => void;
 }
 
 export function FinishPatient(props: FinishPatientProps) {
-  const { cabinet, queueName, patient, isReturn, nextDoctors } = props;
+  const {
+    cabinet,
+    queueName,
+    patient,
+    isReturn,
+    nextDoctors,
+    name,
+    isAdditional,
+    reload
+  } = props;
   const { socket, isConnected } = useSocket();
 
   React.useEffect(() => {
@@ -21,9 +33,10 @@ export function FinishPatient(props: FinishPatientProps) {
       () =>
         socket.emit("finishPatient", {
           cabinet,
+          name: name,
           queueName,
           nextDoctors,
-          returnTo: isReturn,
+          returnTo: isAdditional ? false : isReturn,
         }),
       1000
     );

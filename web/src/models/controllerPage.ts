@@ -3,6 +3,7 @@ import { RootModel } from ".";
 
 export interface Patient {
   id: string;
+  nowReturn: null | true;
   isGold: boolean;
   doctors: string[];
   returnTo: string[];
@@ -21,7 +22,7 @@ export interface ControllerPageState {
 function createEmptyControllerPageState() {
   return {
     patient: null,
-    isReturn: false,
+    isReturn: true,
     step: "getPatient",
     patientFinishDoctor: null,
     nextDoctors: [],
@@ -52,7 +53,7 @@ export const controllerPage = createModel<RootModel>()({
           patient: null,
           nextDoctors: [],
           patientFinishDoctor: null,
-          isReturn: false,
+          isReturn: true,
         };
       }
 
@@ -78,7 +79,14 @@ export const controllerPage = createModel<RootModel>()({
     },
 
     finishBreak(state) {
-      return { ...state, step: "getPatient" };
+      return {
+        ...state,
+        step: "getPatient",
+        patient: null,
+        nextDoctors: [],
+        patientFinishDoctor: null,
+        isReturn: true,
+      };
     },
 
     setQueue(state, payload) {

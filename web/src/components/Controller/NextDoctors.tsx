@@ -46,11 +46,11 @@ export function NextDoctors(props: NextDoctorsProps) {
       if (element == props.queueName) {
         return (
           <div
-            className={`col-3 mb-2 ${styles.nextButton}`}
+            className={`col-3 mb-2 ${styles.nextButton} align-items-center`}
             onClick={props.changeReturn}
           >
-            Вернуть ко мне
-            {props.isReturn ? (
+            Не возвращать пациета ко мне
+            {!props.isReturn ? (
               <img
                 src={ready}
                 width={20}
@@ -65,7 +65,7 @@ export function NextDoctors(props: NextDoctorsProps) {
 
       return (
         <div
-          className={`col-3 mb-2 ${styles.nextButton}`}
+          className={`col-3 mb-2 ${styles.nextButton} d-flex align-items-center`}
           onClick={(ev: any) => addNextDoctor(element)}
           style={{
             pointerEvents:

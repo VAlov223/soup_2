@@ -71,7 +71,7 @@ export function Controller(props: ControllerPageStateProps) {
 
   const setBreak = () => {
     if (polling.current) {
-      console.log('stop')
+      console.log("stop");
       clearInterval(polling.current);
       polling.current = false;
     }
@@ -81,8 +81,10 @@ export function Controller(props: ControllerPageStateProps) {
   };
 
   const newPatient = (message: any) => {
-    const { newPatient } = message;
-    console.log(message, "newPatient");
+    const { newPatient, nowReturn } = message;
+
+    console.log(nowReturn)
+
     if (newPatient.id == "-1" && !polling.current) {
       polling.current = setInterval(
         () => socket.emit("getPatient", { cabinet, queueName: queue }),
@@ -98,6 +100,10 @@ export function Controller(props: ControllerPageStateProps) {
     console.log("пришел пациент");
 
     setPatient(newPatient);
+
+    if (nowReturn) {
+      changeReturn();
+    }
   };
 
   const nextPatientDoctor = (message: any) => {
@@ -186,7 +192,6 @@ export function Controller(props: ControllerPageStateProps) {
     }
 
     return () => socket.off("getController", getController);
-    
   }, [isConnected, patient]);
 
   if (!isConnected) {
@@ -214,6 +219,7 @@ export function Controller(props: ControllerPageStateProps) {
             minHeight: "20%",
             backgroundColor: "white",
             borderRadius: "10px",
+            zIndex: 20,
           }}
         >
           <div style={{ marginBottom: "5%", textAlign: "center" }}>
@@ -281,6 +287,9 @@ export function Controller(props: ControllerPageStateProps) {
             patient={patient}
             isReturn={isReturn}
             nextDoctors={nextDoctors}
+            name={name}
+            isAdditional={isAdditional}
+            reload={reload}
           />
         );
       default:

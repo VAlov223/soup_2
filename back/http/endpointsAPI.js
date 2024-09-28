@@ -140,6 +140,7 @@ io.on("connection", (socket) => {
   socket.on("getPatient", async (message) => {
     if ("cabinet" in message && "queueName" in message) {
       const { cabinet, queueName } = message;
+      let nowReturn = null
       if (isDatabaseConnected) {
         const session = await mongoose.startSession();
         session.startTransaction();
@@ -185,11 +186,15 @@ io.on("connection", (socket) => {
                   queue.markModified("check");
                 } else {
                   item = queue.return_queue.shift();
+                  console.log('yes')
+                  nowReturn = true
                   queue.markModified("return_queue");
                 }
               } else {
                 if (queue.return_queue.length > 0) {
                   item = queue.return_queue.shift();
+                  console.log('yes')
+                  nowReturn = true
                   queue.markModified("return_queue");
                   queue.check = !queue.check;
                   queue.markModified("check");
@@ -207,7 +212,7 @@ io.on("connection", (socket) => {
               await queue.save();
               await session.commitTransaction();
               session.endSession();
-              io.to(cabinet).emit("newPatient", { newPatient: item });
+              io.to(cabinet).emit("newPatient", { newPatient: item, nowReturn: nowReturn });
             }
           }
         } catch (err) {
