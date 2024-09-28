@@ -71,6 +71,7 @@ export function Controller(props: ControllerPageStateProps) {
 
   const setBreak = () => {
     if (polling.current) {
+      console.log('stop')
       clearInterval(polling.current);
       polling.current = false;
     }
@@ -155,7 +156,6 @@ export function Controller(props: ControllerPageStateProps) {
     const deleteSocket = () => {
       socket.off("newPatient", newPatient);
       socket.off("nextPatientDoctor", nextPatientDoctor);
-      socket.off("getController", getController);
     };
 
     deleteSocket();
@@ -163,7 +163,7 @@ export function Controller(props: ControllerPageStateProps) {
     if (isConnected) {
       const goPatinet =
         patient && typeof patient == "object" ? patient?.id : "Прием идет";
-        socket.emit("joinGroup", {
+      socket.emit("joinGroup", {
         cabinet,
         clientType: "controller",
         doctor,
@@ -171,13 +171,23 @@ export function Controller(props: ControllerPageStateProps) {
       });
       socket.on("newPatient", newPatient);
       socket.on("nextPatientDoctor", nextPatientDoctor);
-      socket.on("getController", getController);
     } else {
       deleteSocket();
     }
 
     return deleteSocket;
   }, [isConnected]);
+
+  React.useEffect(() => {
+    if (isConnected) {
+      socket.on("getController", getController);
+    } else {
+      socket.off("getController", getController);
+    }
+
+    return () => socket.off("getController", getController);
+    
+  }, [isConnected, patient]);
 
   if (!isConnected) {
     return "Технический перерыв";

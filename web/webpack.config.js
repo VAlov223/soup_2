@@ -36,7 +36,7 @@ module.exports = (env, argv) => {
     };
   } else {
     //For production we use entry that will resolve module
-    config.entry = path.resolve(__dirname, "./src/index.ts");
+    config.entry = path.resolve(__dirname, "./src/examples/index.tsx");
 
     //Output with checksum to be cached
     config.output = {
