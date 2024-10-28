@@ -4,6 +4,7 @@ import search from "../../assets/search.svg";
 interface InputProps {
   setValue: (value: any) => void;
   style?: { [P: string]: any };
+  textAlign?: boolean; 
   justify?: string
   placeholder?: string;
 }
@@ -40,7 +41,7 @@ export function Input(props: InputProps) {
         type="text"
         className=""
         placeholder={placeholder}
-        style={{ textAlign: "center" }}
+        style={{ textAlign: props.textAlign ? "left" : "center" }}
         width="100%"
         onChange={(event: any) => debounce(event.target.value, 1000)}
       />

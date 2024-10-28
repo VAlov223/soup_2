@@ -1,63 +1,24 @@
 import React from "react";
 import HelloDoctor from "../components/Doctor/HelloDoctor";
-import Choose from "../components/Doctor/Choose";
 import { RootState, Dispatch } from "../store";
 import { connect } from "react-redux";
 import ChooseDoctorLogo from "../assets/chooseLogo.svg";
 import { Navigate } from "react-router-dom";
+import { ChooseDoctor } from "../components/Doctor/ChooseDoctor";
+import { ChooseCabinet } from "../components/Doctor/ChooseCabinet";
 
 function DoctorPageComponent(props: DoctorPageProps) {
   const { step, name, isAdditional, cabinet } = props.doctorInfo;
   const { prevStep, startDoctor, setDoctor, setCabinet, reload } = props;
+
+
+  console.log(name)
 
   React.useEffect(() => {
     return () => {
       reload();
     };
   }, []);
-
-  const setCabinetStep = (data: { [P: string]: string[] }, value: string) => {
-    if (value && typeof value == "string") {
-      let payload: { cabinet: string };
-      if (data?.free?.includes(value)) {
-        payload = { cabinet: value };
-        setCabinet(payload);
-      }
-    }
-  };
-
-  const setDoctorStep = (data: { [P: string]: any }, value: any) => {
-    if ("doctors" in data && "additionals" in data) {
-      if (data.additionals.includes(value)) {
-        setDoctor({ name: value, isAdditional: true });
-      } else {
-        setDoctor({ name: value, isAdditional: false });
-      }
-    }
-    return;
-  };
-
-  const doctorDataRender = (data: { [P: string]: any }) => {
-    let result: string[] = [];
-    if (data) {
-    Object.values(data).forEach((element: any) => {
-      if (element && Array.isArray(element)) {
-        result = [...result, ...element];
-      }
-    });} 
-    console.log(result.sort());
-    return result;
-  };
-
-  const cabinetDataRender = (data: { [P: string]: any }) => {
-    let result: string[] = [];
-    if (data) {
-      console.log(data)
-    if ("free" in data) {
-      result = data.free;
-    }}
-    return result.sort();
-  };
 
   const renderHelloDoctor = () => {
     return (
@@ -69,30 +30,24 @@ function DoctorPageComponent(props: DoctorPageProps) {
 
   const renderChooseDoctor = () => {
     return (
-      <>
-        <Choose
-          key="doctor"
-          fetchUrl="/api/doctor"
-          img={ChooseDoctorLogo}
-          prev={prevStep}
-          setValue={setDoctorStep}
-          dataRender={doctorDataRender}
-        />
-      </>
+      <ChooseDoctor
+        key="doctor"
+        doctorUrl="doctor"
+        additionalUrl="additional/all"
+        img={ChooseDoctorLogo}
+        prev={prevStep}
+        setDoctor={setDoctor}
+      />
     );
   };
 
   const renderChooseCabinet = () => {
-    return (
-      <Choose
-        key="cabinet"
-        fetchUrl="/api/cabinet"
-        img={ChooseDoctorLogo}
-        prev={prevStep}
-        setValue={setCabinetStep}
-        dataRender={cabinetDataRender}
-      />
-    );
+    return (<ChooseCabinet
+      cabinetUrl="cabinet/all"
+      setCabinet={setCabinet}
+      img={ChooseDoctorLogo}
+      prev={prevStep}
+    />);
   };
 
   const render = () => {

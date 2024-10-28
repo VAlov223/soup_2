@@ -5,34 +5,30 @@ import search from "../../assets/search.svg";
 import back from "../../assets/backArrow.svg";
 import { LoadingData } from "../Load";
 import { Input } from "../tools/Input";
+import { MAIN_URL } from "../../utils";
 
-interface ChooseProps {
-  fetchUrl: string;
+interface ChooseCabinetProps {
+  cabinetUrl: string;
   prev: () => void;
-  setValue: (data: any, value: any) => void;
-  dataRender: (data: any) => string[];
+  setCabinet: (data: { [P: string]: any }) => void;
   img: any;
 }
 
-export default function Choose(props: ChooseProps) {
-  const { fetchUrl, img, prev, dataRender, setValue } = props;
+export function ChooseCabinet(props: ChooseCabinetProps) {
+  const { cabinetUrl, img, prev, setCabinet } = props;
   const [search, setSearch] = React.useState("");
   const [loading, setLoading] = React.useState(1);
-  const [data, setData] = React.useState<{ [P: string | number]: any }>({});
+  const [data, setData] = React.useState<any[]>([]);
 
   React.useEffect(() => {
     const getData = async () => {
       try {
         setLoading(1);
-        console.log(20);
-        const baseUrl = `${window.location.protocol}//${window.location.host}/`;
-        // const data = await fetch(`${baseUrl}${fetchUrl}/?search=${search}`);
-        console.log(20);
-        const data = await fetch(
-          `http://localhost:3000${fetchUrl}/?search=${search}`
+        const dataCabinet = await fetch(
+          `${MAIN_URL}${cabinetUrl}/?search=${search}`
         );
-        const jsonData = await data.json();
-        setData(jsonData);
+        const jsonDataCabinets = await dataCabinet.json();
+        setData(jsonDataCabinets);
         setLoading(0);
       } catch (err) {
         setLoading(1);
@@ -42,6 +38,10 @@ export default function Choose(props: ChooseProps) {
     getData();
   }, [search]);
 
+  const onClickData = (element: any) => {
+    setCabinet(element);
+  };
+
   const renderData = () => {
     if (!loading) {
       return (
@@ -49,7 +49,7 @@ export default function Choose(props: ChooseProps) {
           className="w-100 d-flex flex-column p-3"
           style={{ overflowY: "auto", gap: "10px" }}
         >
-          {dataRender(data).map((element, index) => {
+          {data.map((element, index) => {
             return (
               <div key={index} className={styles.blackStyleButton}>
                 <p
@@ -58,8 +58,8 @@ export default function Choose(props: ChooseProps) {
                     textAlign: "center",
                     padding: "1.3%",
                   }}
-                  onClick={(event: any) => {
-                    setValue(data, event.target.textContent);
+                  onClick={() => {
+                    return onClickData(element);
                   }}
                 >
                   {element}
