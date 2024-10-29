@@ -38,37 +38,28 @@ export function Controller(props: ControllerPageStateProps) {
   const { socket, isConnected } = useSocket();
 
   React.useEffect(() => {
-    window.addEventListener("beforeunload", () => {
-      socket.emit("leaveGroup", {
+    const InOutGroup = (param: "leaveGroup" | "joinGroup") => {
+      socket.emit(param, {
         room: cabinet,
         type: "controller",
         name: `${props.name} - ${props.queue}`,
         isAdditional: isAdditional,
       });
+    };
+
+    socket.on("newPatient", (data: any) => {
+      console.log(data);
     });
 
-    setTimeout(
-      () =>
-        socket.emit("joinGroup", {
-          room: cabinet,
-          type: "controller",
-          name: `${props.name} - ${props.queue}`,
-          isAdditional: isAdditional,
-        }),
-      1000
-    );
+    const forWindow = () => InOutGroup("leaveGroup");
+
+    window.addEventListener("beforeunload", forWindow);
+
+    setTimeout(() => InOutGroup("joinGroup"), 1000);
 
     return () => {
-      setTimeout(
-        () =>
-          socket.emit("leaveGroup", {
-            room: cabinet,
-            type: "controller",
-            name: `${props.name} - ${props.queue}`,
-            isAdditional: isAdditional,
-          }),
-        1500
-      );
+      setTimeout(() => InOutGroup("leaveGroup"), 1500);
+      window.removeEventListener("beforeunload", forWindow);
       props.reload();
     };
   }, []);
