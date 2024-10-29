@@ -42,8 +42,7 @@ export const doctorPage = createModel<RootModel>()({
     },
 
     setCabinet(state, payload) {
-      const { cabinet } = payload;
-      return { ...state, cabinet };
+      return { ...state, cabinet: payload };
     },
 
     reload(state) {

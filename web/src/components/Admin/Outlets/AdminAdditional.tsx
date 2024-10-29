@@ -28,12 +28,15 @@ export function AdminAdditionals() {
     <AdminPageOutlet
       deleteElement={(data: any) => deleteElement(data)}
       addName="направление"
-      fetchUrl="additional/all"
+      fetchUrl="doctor"
       searchName="Поиск по направлениям"
       dataRender={(data) => {
-        return data.map((element: any) => {
-          return { title: element, forDelete: element };
-        });
+        console.log(data);
+        return data
+          .filter((element: any) => element.isAdditional)
+          .map((element: any) => {
+            return { title: element.name, forDelete: element.name };
+          });
       }}
     />
   );

@@ -14,6 +14,7 @@ export interface ControllerPageState {
   nextDoctors: string[];
   isReturn: boolean;
   step: string;
+  isBreak: boolean;
   patientFinishDoctor: string | null;
   isAdditional: boolean;
   queue: string;
@@ -26,6 +27,7 @@ function createEmptyControllerPageState() {
     step: "getPatient",
     patientFinishDoctor: null,
     nextDoctors: [],
+    isBreak: false,
     isAdditional: false,
     queue: "",
   } as ControllerPageState;
@@ -104,6 +106,14 @@ export const controllerPage = createModel<RootModel>()({
 
     changeReturn(state) {
       return { ...state, isReturn: !state.isReturn };
+    },
+
+    startBreak(state) {
+      return { ...state, isBreak: true };
+    },
+
+    stopBreak(state) {
+      return { ...state, isBreak: false };
     },
 
     reload(state) {

@@ -28,12 +28,78 @@ export function Controller(props: ControllerPageStateProps) {
     patientFinishDoctor,
     patient,
     isAdditional,
+    isBreak,
     name,
     queue,
   } = props;
 
-  const [exit, setExit] = React.useState(false);
   const navigate = useNavigate();
+  const [exit, setExit] = React.useState(false);
+  const { socket, isConnected } = useSocket();
+
+  React.useEffect(() => {
+    window.addEventListener("beforeunload", () => {
+      socket.emit("leaveGroup", {
+        room: cabinet,
+        type: "controller",
+        name: `${props.name} - ${props.queue}`,
+        isAdditional: isAdditional,
+      });
+    });
+
+    setTimeout(
+      () =>
+        socket.emit("joinGroup", {
+          room: cabinet,
+          type: "controller",
+          name: `${props.name} - ${props.queue}`,
+          isAdditional: isAdditional,
+        }),
+      1000
+    );
+
+    return () => {
+      setTimeout(
+        () =>
+          socket.emit("leaveGroup", {
+            room: cabinet,
+            type: "controller",
+            name: `${props.name} - ${props.queue}`,
+            isAdditional: isAdditional,
+          }),
+        1500
+      );
+      props.reload();
+    };
+  }, []);
+
+  const renderBreak = () => {
+    if (isBreak) {
+      return (
+        <img
+          src={play}
+          onClick={() => props.stopBreak()}
+          width={20}
+          height={20}
+          style={{ cursor: "pointer" }}
+        />
+      );
+    }
+
+    if (!isBreak && (step == "finishPatient" || patient?.id == "empty")) {
+      return (
+        <img
+          src={pause}
+          onClick={() => props.startBreak()}
+          width={20}
+          height={20}
+          style={{ cursor: "pointer" }}
+        />
+      );
+    }
+
+    return <img src={circle} width={20} height={20} />;
+  };
 
   // const renderStep = () => {
   //   switch (step) {
@@ -99,9 +165,10 @@ export function Controller(props: ControllerPageStateProps) {
             backgroundColor: "white",
             borderRadius: "10px",
           }}
-          className=" p-3 d-flex flex-column"
+          className="p-3 d-flex flex-column"
         >
           <div className="d-flex align-items-start justify-content-between">
+            {renderBreak()}
             <div className="d-flex flex-column">
               <div
                 style={{
@@ -157,9 +224,14 @@ const mapState = (state: RootState) => ({
   queue: state.controllerPage.queue,
   isReturn: state.controllerPage.isReturn,
   patientFinishDoctor: state.controllerPage.patientFinishDoctor,
+  isBreak: state.controllerPage.isBreak,
 });
 
-const mapDispatch = (dispatch: Dispatch) => ({});
+const mapDispatch = (dispatch: Dispatch) => ({
+  stopBreak: dispatch.controllerPage.stopBreak,
+  startBreak: dispatch.controllerPage.startBreak,
+  reload: dispatch.controllerPage.reload,
+});
 
 type StateProps = ReturnType<typeof mapState>;
 type DispatchProps = ReturnType<typeof mapDispatch>;

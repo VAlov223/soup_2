@@ -11,8 +11,7 @@ function DoctorPageComponent(props: DoctorPageProps) {
   const { step, name, isAdditional, cabinet } = props.doctorInfo;
   const { prevStep, startDoctor, setDoctor, setCabinet, reload } = props;
 
-
-  console.log(name)
+  console.log(name);
 
   React.useEffect(() => {
     return () => {
@@ -37,17 +36,20 @@ function DoctorPageComponent(props: DoctorPageProps) {
         img={ChooseDoctorLogo}
         prev={prevStep}
         setDoctor={setDoctor}
+        setCabinet={setCabinet}
       />
     );
   };
 
   const renderChooseCabinet = () => {
-    return (<ChooseCabinet
-      cabinetUrl="cabinet/all"
-      setCabinet={setCabinet}
-      img={ChooseDoctorLogo}
-      prev={prevStep}
-    />);
+    return (
+      <ChooseCabinet
+        cabinetUrl="cabinet/all"
+        setCabinet={setCabinet}
+        img={ChooseDoctorLogo}
+        prev={prevStep}
+      />
+    );
   };
 
   const render = () => {
@@ -63,15 +65,11 @@ function DoctorPageComponent(props: DoctorPageProps) {
     }
   };
 
-  if (isAdditional) {
-    const to = `/controller/${name}/${name}`;
-    return <Navigate to={to} />;
-  }
+  console.log(isAdditional, name, cabinet);
 
   if (name && cabinet) {
-    const to = `/controller/${encodeURIComponent(name)}/${encodeURIComponent(
-      cabinet
-    )}`;
+    const additional = isAdditional ? "additional" : "notadditional";
+    const to = `/controller/${name}/${cabinet}/${additional}`;
     return <Navigate to={to} />;
   }
 
@@ -87,8 +85,7 @@ const mapDispatch = (dispatch: Dispatch) => ({
   startDoctor: () => dispatch.doctorPage.startDoctor(),
   setDoctor: (payload: { name: string; isAdditional: boolean }) =>
     dispatch.doctorPage.setDoctor(payload),
-  setCabinet: (payload: { cabinet: string }) =>
-    dispatch.doctorPage.setCabinet(payload),
+  setCabinet: (payload: string) => dispatch.doctorPage.setCabinet(payload),
   reload: () => dispatch.doctorPage.reload(),
 });
 

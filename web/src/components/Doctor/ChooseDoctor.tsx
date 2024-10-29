@@ -12,11 +12,12 @@ interface ChooseDoctorProps {
   additionalUrl: string;
   prev: () => void;
   setDoctor: (data: { [P: string]: any }) => void;
+  setCabinet: (data: string) => void;
   img: any;
 }
 
 export function ChooseDoctor(props: ChooseDoctorProps) {
-  const { doctorUrl, additionalUrl, img, prev, setDoctor } = props;
+  const { doctorUrl, additionalUrl, img, prev, setDoctor, setCabinet } = props;
   const [search, setSearch] = React.useState("");
   const [loading, setLoading] = React.useState(1);
   const [data, setData] = React.useState<any[]>([]);
@@ -29,13 +30,7 @@ export function ChooseDoctor(props: ChooseDoctorProps) {
           `${MAIN_URL}${doctorUrl}/?search=${search}`
         );
         const jsonDataDoctors = await dataDoctor.json();
-
-        const dataAdditional = await fetch(
-          `${MAIN_URL}${additionalUrl}/?search=${search}`
-        );
-        const jsonDataAdditional = await dataAdditional.json();
-
-        setData([...jsonDataDoctors, ...jsonDataAdditional]);
+        setData([...jsonDataDoctors]);
         setLoading(0);
       } catch (err) {
         setLoading(1);
@@ -45,18 +40,15 @@ export function ChooseDoctor(props: ChooseDoctorProps) {
     getData();
   }, [search]);
 
-
   const onClickData = (element: any) => {
-    let name;
     let isAdditional;
-    if ("personalId" in element) {
-      name = element.personalId;
+    if (!element.isAdditional) {
       isAdditional = false;
     } else {
-      name = element.name;
       isAdditional = true;
+      setCabinet(element.name)
     }
-    setDoctor({ name, isAdditional });
+    setDoctor({ name: element.personalId, isAdditional });
   };
 
   const renderData = () => {

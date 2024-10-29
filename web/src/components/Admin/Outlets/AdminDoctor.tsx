@@ -31,12 +31,14 @@ export function AdminDoctors() {
       fetchUrl="doctor"
       searchName="Поиск по врачам"
       dataRender={(data) => {
-        return data.map((element: any) => {
-          return {
-            title: `${element.name} - ${element.profile}`,
-            forDelete: element.personalId,
-          };
-        });
+        return data
+          .filter((element: any) => !element.isAdditional)
+          .map((element: any) => {
+            return {
+              title: `${element.name} - ${element.profile}`,
+              forDelete: element.personalId,
+            };
+          });
       }}
     />
   );

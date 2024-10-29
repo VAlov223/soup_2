@@ -6,65 +6,54 @@ import { useParams } from "react-router-dom";
 import load from "../assets/loadData.gif";
 import { ConnectController } from "../components/Controller/Controller";
 import { splitByFirstOccurrence } from "../services/splitChar";
+import { MAIN_URL } from "../utils";
 
-interface ControllerPageProps {
-  fetchUrl: string;
-}
+interface ControllerPageProps {}
 
 export function ControllerPage(props: ControllerPageStateProps) {
   const [check, setCheck] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
-  const [name, setName] = React.useState("");
-  const { cabinet, doctor } = useParams();
+  const [name, setName] = React.useState<string>("");
+  const { doctor, cabinet, additional } = useParams();
+
+  const urlAdditional = additional == "additional" ? "true" : "false";
+
+  const checkCabinetAndDoctor = async () => {
+    try {
+      setLoading(true);
+      // const data = await fetch(`${baseUrl}${fetchUrl}/?search=${search}`);
+      const data = await fetch(
+        `${MAIN_URL}doctor/check/${doctor}/${cabinet}?isAdditional=${urlAdditional}`
+      );
+      const result = await data.json();
+      if (result.statusCode == 404 || !result) {
+        setCheck(false);
+        setLoading(false);
+      } else {
+        if (additional == "additional") {
+          props.setAdditional(true);
+        }
+        const data = await fetch(`${MAIN_URL}doctor/${doctor}`);
+        const nameResult = await data.json();
+        setName(nameResult.name);
+        props.setQueue(nameResult.profile);
+        setCheck(true);
+        setLoading(false);
+      }
+    } catch (err) {
+      setCheck(false);
+      setLoading(false);
+      console.error(err);
+    }
+  };
 
   React.useEffect(() => {
-    const checkCabinetAndDoctor = async () => {
-      try {
-        setLoading(true);
-        const baseUrl = `${window.location.protocol}//${window.location.host}/`;
-        // const data = await fetch(`${baseUrl}${fetchUrl}/?search=${search}`);
-        const data = await fetch(
-          `http://localhost:3000${props.fetchUrl}/${doctor}/${cabinet}`
-        );
-        const jsonData = await data.json();
-        console.log(jsonData);
-        if (jsonData?.check) {
-          const isAdditional = jsonData?.isAdditional;
-          console.log(jsonData?.isAdditional, "sfsdfsdf");
-          props.setAdditional(isAdditional);
-          let queue = "";
-          let name = "";
-          if (isAdditional) {
-            queue = doctor || "";
-          } else {
-            const doctorSplit = splitByFirstOccurrence(doctor, '-')
-            console.log(doctorSplit, 'doctorSplit')
-            name = typeof doctorSplit == "object" ? doctorSplit[0].trim() : "";
-            queue = typeof doctorSplit == "object" ? doctorSplit[1].trim() : "";
-            setName(name);
-          }
-          props.setQueue(queue);
-          setCheck(true);
-          setLoading(false);
-        } else {
-          setCheck(false);
-          setLoading(false);
-        }
-      } catch (err) {
-        setLoading(true);
-        console.error(err);
-      }
-    };
     checkCabinetAndDoctor();
   }, []);
-
-  console.log(check, "check");
 
   if (!check && !loading) {
     return <Navigate to="/" />;
   }
-
-  console.log(props.isAdditional);
 
   return (
     <>
@@ -88,6 +77,7 @@ const mapState = (state: RootState) => ({
 });
 
 const mapDispatch = (dispatch: Dispatch) => ({
+  reload: dispatch.controllerPage.reload,
   setAdditional: (value: boolean) =>
     dispatch.controllerPage.setAdditional(value),
   setQueue: (value: string) => {

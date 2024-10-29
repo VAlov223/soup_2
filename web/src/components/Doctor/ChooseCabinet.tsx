@@ -10,7 +10,7 @@ import { MAIN_URL } from "../../utils";
 interface ChooseCabinetProps {
   cabinetUrl: string;
   prev: () => void;
-  setCabinet: (data: { [P: string]: any }) => void;
+  setCabinet: (data: string) => void;
   img: any;
 }
 
