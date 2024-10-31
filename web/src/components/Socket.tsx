@@ -4,9 +4,16 @@ import { io } from "socket.io-client";
 interface SocketContextType {
   socket: any;
   isConnected: boolean;
+  setSocketStatus: any;
+  socketStatus: any;
 }
 
-const SocketContext = createContext<SocketContextType>({socket: "", isConnected: false});
+const SocketContext = createContext<SocketContextType>({
+  socket: "",
+  isConnected: false,
+  socketStatus: "",
+  setSocketStatus: () => true,
+});
 
 interface SocketProviderProps {
   url: string;
@@ -17,6 +24,7 @@ export const SocketProvider = (props: SocketProviderProps) => {
   const { url, children } = props;
   const [socket, setSocket] = useState<any>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [socketStatus, setSocketStatus] = useState(null);
 
   useEffect(() => {
     const socketInstance = io(url, {
@@ -48,7 +56,9 @@ export const SocketProvider = (props: SocketProviderProps) => {
   }, [url]);
 
   return (
-    <SocketContext.Provider value={{ socket, isConnected }}>
+    <SocketContext.Provider
+      value={{ socket, isConnected, socketStatus, setSocketStatus }}
+    >
       {children}
     </SocketContext.Provider>
   );

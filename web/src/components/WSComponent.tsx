@@ -4,11 +4,65 @@ import { socket } from "../examples/socket";
 import { RootState, Dispatch } from "../store";
 import { connect } from "react-redux";
 
-function WSComponent(props: WSComponentProps) {
-  const { socket, isConnected } = useSocket();
+export function WSComponent(props: WSComponentProps) {
+  const { socket, isConnected, socketStatus } = useSocket();
+
   React.useEffect(() => {
-    socket.on("newPatient", (data: any) => {});
-  });
+    console.log(socket, 'socket')
+    if (!socket) {
+      return;
+    }
+    const setPatinet = (data: any) => {
+      props.setPatientController(data);
+      props.setPatientScreen(data);
+    };
+
+    const nextDoctorForPatient = (data: any) => {
+      props.setNextDoctorForPatient(data);
+    };
+
+    const screenBreak = () => {
+      props.setScreenBreak();
+    };
+
+    const finishBreak = () => {
+      props.finishScreenBreak();
+    };
+
+    const controllerLeave = () => {
+      props.setScreenUnActive();
+    };
+
+    const controllerConnect = (data: any) => {
+      props.setScreenDoctor(data);
+    };
+
+    const screenConnect = () => {
+      socket.emit("aboutController");
+    };
+
+    const controllerInfo = (data: any) => {
+      const { name, patient } = data;
+      props.setScreenDoctor(name);
+      props.setPatientScreen(patient);
+    };
+
+    socket.on("newPatient", setPatinet);
+
+    socket.on("nextDoctorForPatient", nextDoctorForPatient);
+
+    socket.on("setBreak", screenBreak);
+
+    socket.on("finishBreak", finishBreak);
+
+    socket.on("controllerLeave", controllerLeave);
+
+    socket.on("controllerConnect", controllerConnect);
+
+    socket.on("controllerInfo", controllerInfo);
+  }, [socket]);
+
+  return null;
 }
 
 const mapState = (state: RootState) => ({});
@@ -18,6 +72,7 @@ const mapDispatch = (dispatch: Dispatch) => ({
   setPatientScreen: dispatch.screenPage.setPatient,
   setNextDoctorForPatient: dispatch.controllerPage.setPatientFinishDoctor,
   setScreenIsActive: dispatch.screenPage.setActive,
+  setScreenUnActive: dispatch.screenPage.setUnActive,
   setScreenBreak: dispatch.screenPage.setBreak,
   finishScreenBreak: dispatch.screenPage.finishBreak,
   setScreenDoctor: dispatch.screenPage.setDoctor,
@@ -27,7 +82,4 @@ type StateProps = ReturnType<typeof mapState>;
 type DispatchProps = ReturnType<typeof mapDispatch>;
 type WSComponentProps = StateProps & DispatchProps;
 
-export const ConnectControllerPage = connect(
-  mapState,
-  mapDispatch
-)(WSComponent);
+export const WS = connect(mapState, mapDispatch)(WSComponent);

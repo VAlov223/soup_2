@@ -2,7 +2,7 @@ import { createModel } from "@rematch/core";
 import { RootModel } from ".";
 
 export interface Patient {
-  id: string;
+  number: string;
   nowReturn: null | true;
   isGold: boolean;
   doctors: string[];

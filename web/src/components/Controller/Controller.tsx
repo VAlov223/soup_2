@@ -7,7 +7,7 @@ import redCross from "../../assets/crossRed.svg";
 import pause from "../../assets/pause.svg";
 import play from "../../assets/play.svg";
 import circle from "../../assets/circle.svg";
-import { GetPatient } from "./GetPatient";
+import { GetPatientStep } from "./GetPatient";
 import { Break } from "./Break";
 import { NextDoctors } from "./NextDoctors";
 import { FinishPatient } from "./FinishPatient";
@@ -27,6 +27,7 @@ export function Controller(props: ControllerPageStateProps) {
     nextDoctors,
     patientFinishDoctor,
     patient,
+    nextStep,
     isAdditional,
     isBreak,
     name,
@@ -35,9 +36,11 @@ export function Controller(props: ControllerPageStateProps) {
 
   const navigate = useNavigate();
   const [exit, setExit] = React.useState(false);
-  const { socket, isConnected } = useSocket();
+  const { socket, isConnected, setSocketStatus } = useSocket();
 
   React.useEffect(() => {
+    setSocketStatus("controller");
+
     const InOutGroup = (param: "leaveGroup" | "joinGroup") => {
       socket.emit(param, {
         room: cabinet,
@@ -47,10 +50,6 @@ export function Controller(props: ControllerPageStateProps) {
       });
     };
 
-    socket.on("newPatient", (data: any) => {
-      console.log(data);
-    });
-
     const forWindow = () => InOutGroup("leaveGroup");
 
     window.addEventListener("beforeunload", forWindow);
@@ -59,9 +58,11 @@ export function Controller(props: ControllerPageStateProps) {
 
     return () => {
       setTimeout(() => InOutGroup("leaveGroup"), 1500);
+      setSocketStatus("");
       window.removeEventListener("beforeunload", forWindow);
       props.reload();
     };
+    
   }, []);
 
   const renderBreak = () => {
@@ -77,7 +78,7 @@ export function Controller(props: ControllerPageStateProps) {
       );
     }
 
-    if (!isBreak && (step == "finishPatient" || patient?.id == "empty")) {
+    if (!isBreak && (step == "finishPatient" || patient?.number == "empty")) {
       return (
         <img
           src={pause}
@@ -92,56 +93,50 @@ export function Controller(props: ControllerPageStateProps) {
     return <img src={circle} width={20} height={20} />;
   };
 
-  // const renderStep = () => {
-  //   switch (step) {
-  //     case "getPatient":
-  //       return (
-  //         <GetPatient
-  //           isGold={
-  //             typeof patient == "object" && patient?.isGold
-  //               ? patient.isGold
-  //               : false
-  //           }
-  //           cabinet={cabinet}
-  //           queueName={queue}
-  //           patientNumber={typeof patient == "object" ? patient?.id : null}
-  //           nextStep={nextStep}
-  //         />
-  //       );
-  //     case "break":
-  //       return <Break />;
-  //     case "nextDoctors":
-  //       return (
-  //         <NextDoctors
-  //           patient={patient}
-  //           addNextDoctor={addNextDoctor}
-  //           queueName={queue}
-  //           nextDoctors={nextDoctors}
-  //           isReturn={isReturn}
-  //           changeReturn={changeReturn}
-  //           fetchUrl="/api/queue"
-  //           nextStep={nextStep}
-  //         />
-  //       );
-  //     case "finishPatient":
-  //       return (
-  //         <FinishPatient
-  //           cabinet={cabinet}
-  //           queueName={queue}
-  //           patientFinishDoctor={patientFinishDoctor}
-  //           nextStep={nextStep}
-  //           patient={patient}
-  //           isReturn={isReturn}
-  //           nextDoctors={nextDoctors}
-  //           name={name}
-  //           isAdditional={isAdditional}
-  //           reload={reload}
-  //         />
-  //       );
-  //     default:
-  //       null;
-  //   }
-  // };
+  const renderStep = () => {
+    switch (step) {
+      case "getPatient":
+        return (
+          <GetPatientStep
+            cabinet={cabinet}
+            personalId={doctor}
+            nextStep={nextStep}
+          />
+        );
+      // case "break":
+      //   return <Break />;
+      // case "nextDoctors":
+      //   return (
+      //     <NextDoctors
+      //       patient={patient}
+      //       addNextDoctor={addNextDoctor}
+      //       queueName={queue}
+      //       nextDoctors={nextDoctors}
+      //       isReturn={isReturn}
+      //       changeReturn={changeReturn}
+      //       fetchUrl="/api/queue"
+      //       nextStep={nextStep}
+      //     />
+      //   );
+      // case "finishPatient":
+      //   return (
+      //     <FinishPatient
+      //       cabinet={cabinet}
+      //       queueName={queue}
+      //       patientFinishDoctor={patientFinishDoctor}
+      //       nextStep={nextStep}
+      //       patient={patient}
+      //       isReturn={isReturn}
+      //       nextDoctors={nextDoctors}
+      //       name={name}
+      //       isAdditional={isAdditional}
+      //       reload={reload}
+      //     />
+      //   );
+      default:
+        null;
+    }
+  };
 
   return (
     <>
@@ -193,7 +188,7 @@ export function Controller(props: ControllerPageStateProps) {
             />
           </div>
           <div className="flex-fill d-flex justify-content-center">
-            {/* {renderStep()} */}
+            {renderStep()}
           </div>
           <div
             className="d-flex justify-content-center"
@@ -222,6 +217,7 @@ const mapDispatch = (dispatch: Dispatch) => ({
   stopBreak: dispatch.controllerPage.stopBreak,
   startBreak: dispatch.controllerPage.startBreak,
   reload: dispatch.controllerPage.reload,
+  nextStep: dispatch.controllerPage.nextStep,
 });
 
 type StateProps = ReturnType<typeof mapState>;
