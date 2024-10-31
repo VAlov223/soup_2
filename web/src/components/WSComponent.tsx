@@ -8,7 +8,7 @@ export function WSComponent(props: WSComponentProps) {
   const { socket, isConnected, socketStatus } = useSocket();
 
   React.useEffect(() => {
-    console.log(socket, 'socket')
+    console.log(socket, "socket");
     if (!socket) {
       return;
     }
@@ -42,8 +42,8 @@ export function WSComponent(props: WSComponentProps) {
     };
 
     const controllerInfo = (data: any) => {
-      const { name, patient } = data;
-      props.setScreenDoctor(name);
+      const { doctor, patient } = data;
+      props.setScreenDoctor(doctor);
       props.setPatientScreen(patient);
     };
 
@@ -60,6 +60,9 @@ export function WSComponent(props: WSComponentProps) {
     socket.on("controllerConnect", controllerConnect);
 
     socket.on("controllerInfo", controllerInfo);
+
+    // socket.on("screenConnect", screenConnect);
+    
   }, [socket]);
 
   return null;

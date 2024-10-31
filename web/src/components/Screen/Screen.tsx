@@ -5,15 +5,11 @@ import { Navigate } from "react-router-dom";
 import { RootState, Dispatch } from "../../store";
 import { connect } from "react-redux";
 import { ConnectReadyScreen } from "./ReadyScreen";
+import { MAIN_URL } from "../../utils";
 import load from "../../assets/loadData.gif";
 
-interface ScreenProps {
-  fetchUrl: string;
-}
-
-export function Screen(props: ScreenProps) {
-  const { cabinet } = useParams();
-  const { fetchUrl } = props;
+export function Screen() {
+  const { cabinet, additional } = useParams();
 
   const [loading, setLoading] = React.useState(true);
   const [check, setCheck] = React.useState(true);
@@ -22,15 +18,23 @@ export function Screen(props: ScreenProps) {
     const checkCabinet = async () => {
       try {
         setLoading(true);
-        const baseUrl = `${window.location.protocol}//${window.location.host}/`;
-        // const data = await fetch(`${baseUrl}${fetchUrl}/?search=${search}`);
-        const data = await fetch(`http://localhost:3000${fetchUrl}/${cabinet}`);
-        const jsonData = await data.json();
-        if (jsonData) {
+        let data;
+        let result;
+        if (additional == "additional") {
+          data = await fetch(`${MAIN_URL}additional/all`);
+          const jsonData = await data.json();
+          result = jsonData.map((element: any) => element.name);
+        } else {
+          data = await fetch(`${MAIN_URL}cabinet/all`);
+          const jsonData = await data.json();
+          result = jsonData;
+        }
+
+        if (result?.includes(cabinet)) {
           setLoading(false);
         } else {
           setCheck(false);
-          setLoading(true);
+          setLoading(false);
         }
       } catch (err) {
         setLoading(true);
@@ -52,7 +56,10 @@ export function Screen(props: ScreenProps) {
         </div>
       ) : (
         <>
-          <ConnectReadyScreen cabinet={cabinet} />
+          <ConnectReadyScreen
+            cabinet={cabinet}
+            isAdditional={additional == "additional" ? true : false}
+          />
         </>
       )}
     </>

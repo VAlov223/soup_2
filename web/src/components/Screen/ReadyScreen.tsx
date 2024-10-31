@@ -6,96 +6,44 @@ import { useSocket } from "../Socket";
 
 interface ReadyScreenProps {
   cabinet: string;
+  isAdditional: boolean;
 }
 
 function ReadyScreen(props: ScreenStateProps) {
-  const {
-    doctor,
-    patient,
-    isBreak,
-    isActive,
-    setDoctor,
-    setBreak,
-    finishBreak,
-    setUnActive,
-    setActive,
-    setPatient,
-    cabinet,
-  } = props;
-
-  const { socket, isConnected } = useSocket();
+  const { doctor, patient, isBreak, isActive, cabinet } = props;
+  const { socket } = useSocket();
 
   console.log(isBreak);
 
   React.useEffect(() => {
-    const deleteSocket = () => {
-      socket.off("controllerLeave", controllerLeave);
-      socket.off("aboutController", aboutController);
-      socket.off("newPatient", newPatient);
-      socket.off("setBreak", goBreak);
-      socket.off("finishBreak", finishBreak);
+    socket.emit("joinGroup", {
+      room: cabinet,
+      type: "screen",
+      isAdditional: props.isAdditional,
+    });
+
+    return () => {
+      socket.emit("leaveGroup", {
+        room: cabinet,
+        type: "screen",
+        isAdditional: props.isAdditional,
+      });
     };
-
-    const controllerLeave = () => {
-      console.log(10);
-      setUnActive();
-    };
-
-    const newPatient = (message: any) => {
-      const { newPatient } = message;
-      console.log(newPatient);
-      setPatient(newPatient.id);
-    };
-
-    const aboutController = (message: any) => {
-      console.log("yees");
-      const { doctor, patient } = message;
-      console.log(patient);
-      setDoctor(doctor);
-      setPatient(patient);
-      setActive();
-    };
-
-    const goBreak = () => {
-      setBreak();
-    };
-
-    const stopBreak = () => {
-      console.log(20);
-      finishBreak();
-    };
-
-    if (isConnected) {
-      socket.emit("joinGroup", { cabinet, clientType: "screen" });
-      socket.on("controllerLeave", controllerLeave);
-      socket.on("newPatient", newPatient);
-      socket.on("setBreak", goBreak);
-      socket.on("finishBreak", stopBreak);
-      socket.on("aboutController", aboutController);
-    } else {
-      console.log("сбрасываем");
-      deleteSocket();
-    }
-
-    return deleteSocket;
-  }, [isConnected]);
+  }, []);
 
   const renderNumber = () => {
     if (!isActive) {
       return <p>Прием не ведётся</p>;
-    } else if (!patient || patient == "-1") {
-      return <p></p>;
     }
+
     if (isBreak && isActive) {
       return <p>Проветривание</p>;
-    } else if (isActive) {
-      return <h2>{patient}</h2>;
+    }
+
+    if (isActive) {
+      return <h2>{patient?.number !== "empty" ? patient?.number : ""}</h2>;
     }
   };
-
-  if (!isConnected) {
-    return "Технический перерыв";
-  }
 
   return (
     <>
@@ -126,15 +74,7 @@ const mapState = (state: RootState) => ({
   isActive: state.screenPage.isActive,
 });
 
-const mapDispatch = (dispatch: Dispatch) => ({
-  setDoctor: (doctor: { doctor: string }) =>
-    dispatch.screenPage.setDoctor(doctor),
-  setBreak: () => dispatch.screenPage.setBreak(),
-  finishBreak: () => dispatch.screenPage.finishBreak(),
-  setPatient: (patient: any) => dispatch.screenPage.setPatient(patient),
-  setUnActive: () => dispatch.screenPage.setUnActive(),
-  setActive: () => dispatch.screenPage.setActive(),
-});
+const mapDispatch = (dispatch: Dispatch) => ({});
 
 type StateProps = ReturnType<typeof mapState>;
 type DispatchProps = ReturnType<typeof mapDispatch>;

@@ -38,6 +38,10 @@ export function Controller(props: ControllerPageStateProps) {
   const [exit, setExit] = React.useState(false);
   const { socket, isConnected, setSocketStatus } = useSocket();
 
+  const aboutController = () => {
+    socket.emit("aboutController", { doctor: `${name} - ${queue}`, patient, room: cabinet });
+  };
+
   React.useEffect(() => {
     setSocketStatus("controller");
 
@@ -50,6 +54,8 @@ export function Controller(props: ControllerPageStateProps) {
       });
     };
 
+    socket.on("screenConnect", aboutController);
+
     const forWindow = () => InOutGroup("leaveGroup");
 
     window.addEventListener("beforeunload", forWindow);
@@ -60,6 +66,7 @@ export function Controller(props: ControllerPageStateProps) {
       setTimeout(() => InOutGroup("leaveGroup"), 1500);
       setSocketStatus("");
       window.removeEventListener("beforeunload", forWindow);
+      socket.off("screenConnect", aboutController);
       props.reload();
     };
   }, []);

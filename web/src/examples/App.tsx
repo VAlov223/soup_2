@@ -22,7 +22,7 @@ export default function App() {
           <Route index element={<AdminDoctors />} />
         </Route>
         <Route path="/login" element={<Auth />} />
-        <Route path="/screen/:cabinet" element={<ScreenPage />} />
+        <Route path="/screen/:cabinet/:additional" element={<ScreenPage />} />
         <Route
           path="/controller/:doctor/:cabinet/:additional"
           element={<ConnectControllerPage fetchUrl="/api/checkController" />}

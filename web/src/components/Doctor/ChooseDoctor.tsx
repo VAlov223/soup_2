@@ -46,7 +46,7 @@ export function ChooseDoctor(props: ChooseDoctorProps) {
       isAdditional = false;
     } else {
       isAdditional = true;
-      setCabinet(element.name)
+      setCabinet(element.name);
     }
     setDoctor({ name: element.personalId, isAdditional });
   };
@@ -71,7 +71,7 @@ export function ChooseDoctor(props: ChooseDoctorProps) {
                     return onClickData(element);
                   }}
                 >
-                  {element.name}
+                  {`${element.name} - ${element.profile}`}
                 </p>
               </div>
             );

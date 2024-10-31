@@ -1,19 +1,20 @@
 import { createModel } from "@rematch/core";
 import { RootModel } from ".";
+import { Patient } from "./controllerPage";
 
 import { RootState, Dispatch } from "../store";
 
 export interface ScreenPageState {
   doctor: string;
-  patient: string;
+  patient: Patient | null;
   isBreak: boolean;
-  isActive: boolean
+  isActive: boolean;
 }
 
 function createEmptyScreenPageState() {
   return {
     doctor: "",
-    patient: "",
+    patient: null,
     isBreak: false,
     isActive: false,
   } as ScreenPageState;
@@ -40,13 +41,13 @@ export const screenPage = createModel<RootModel>()({
       return { ...state, patient: payload };
     },
 
-    setUnActive(state) { 
-      return createEmptyScreenPageState()
-    }, 
+    setUnActive(state) {
+      return createEmptyScreenPageState();
+    },
 
-    setActive(state) { 
-      return {...state, isActive: true}
-    }
+    setActive(state) {
+      return { ...state, isActive: true };
+    },
   },
 
   effects: (dispatch) => ({}),
