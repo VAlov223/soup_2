@@ -1,42 +1,28 @@
 import React from "react";
 import { useSocket } from "../Socket";
 import * as styles from "./FinishPatient.module.css";
+import { RootState, Dispatch } from "../../store";
+import { connect } from "react-redux";
 
-interface FinishPatientProps {
-  patientFinishDoctor: null | string;
+interface FinishPatientPropsNative {
   cabinet: string;
-  queueName: string;
-  patient: any;
-  nextDoctors: string[];
-  isReturn: boolean;
-  name: string;
-  isAdditional: boolean;
-  nextStep: () => void;
-  reload: () => void;
+  personalId: string;
 }
 
-export function FinishPatient(props: FinishPatientProps) {
-  const {
-    cabinet,
-    queueName,
-    patient,
-    isReturn,
-    nextDoctors,
-    name,
-    isAdditional,
-    reload
-  } = props;
-  const { socket, isConnected } = useSocket();
+export function FinishPatient(props: FinishPatientComponentProps) {
+  const { cabinet, isReturn, nextDoctors, personalId, isAdditional } = props;
+
+  const { socket } = useSocket();
 
   React.useEffect(() => {
     setTimeout(
       () =>
         socket.emit("finishPatient", {
-          cabinet,
-          name: name,
-          queueName,
+          room: cabinet,
+          personalId,
           nextDoctors,
-          returnTo: isAdditional ? false : isReturn,
+          isReturn: isAdditional ? false : isReturn,
+          doctors: nextDoctors,
         }),
       1000
     );
@@ -69,3 +55,23 @@ export function FinishPatient(props: FinishPatientProps) {
     </div>
   );
 }
+
+const mapState = (state: RootState) => ({
+  queue: state.controllerPage.queue,
+  isReturn: state.controllerPage.isReturn,
+  isAdditional: state.controllerPage.isAdditional,
+  nextDoctors: state.controllerPage.nextDoctors,
+  patientFinishDoctor: state.controllerPage.patientFinishDoctor,
+});
+
+const mapDispatch = (dispatch: Dispatch) => ({
+  nextStep: dispatch.controllerPage.nextStep,
+});
+
+type StateProps = ReturnType<typeof mapState>;
+type DispatchProps = ReturnType<typeof mapDispatch>;
+type FinishPatientComponentProps = FinishPatientPropsNative &
+  StateProps &
+  DispatchProps;
+
+export const FinishPatientStep = connect(mapState, mapDispatch)(FinishPatient);

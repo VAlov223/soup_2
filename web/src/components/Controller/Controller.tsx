@@ -8,9 +8,9 @@ import pause from "../../assets/pause.svg";
 import play from "../../assets/play.svg";
 import circle from "../../assets/circle.svg";
 import { GetPatientStep } from "./GetPatient";
+import { NextDoctorsStep } from "./NextDoctors";
+import { FinishPatientStep } from "./FinishPatient";
 import { Break } from "./Break";
-import { NextDoctors } from "./NextDoctors";
-import { FinishPatient } from "./FinishPatient";
 import { useNavigate } from "react-router-dom";
 
 interface ControllerProps {
@@ -62,15 +62,14 @@ export function Controller(props: ControllerPageStateProps) {
       window.removeEventListener("beforeunload", forWindow);
       props.reload();
     };
-    
   }, []);
 
   const renderBreak = () => {
-    if (isBreak) {
+    if (step == "break") {
       return (
         <img
           src={play}
-          onClick={() => props.stopBreak()}
+          onClick={() => props.reload()}
           width={20}
           height={20}
           style={{ cursor: "pointer" }}
@@ -78,7 +77,7 @@ export function Controller(props: ControllerPageStateProps) {
       );
     }
 
-    if (!isBreak && (step == "finishPatient" || patient?.number == "empty")) {
+    if (step == "finishPatient" || patient?.number == "empty") {
       return (
         <img
           src={pause}
@@ -103,36 +102,12 @@ export function Controller(props: ControllerPageStateProps) {
             nextStep={nextStep}
           />
         );
-      // case "break":
-      //   return <Break />;
-      // case "nextDoctors":
-      //   return (
-      //     <NextDoctors
-      //       patient={patient}
-      //       addNextDoctor={addNextDoctor}
-      //       queueName={queue}
-      //       nextDoctors={nextDoctors}
-      //       isReturn={isReturn}
-      //       changeReturn={changeReturn}
-      //       fetchUrl="/api/queue"
-      //       nextStep={nextStep}
-      //     />
-      //   );
-      // case "finishPatient":
-      //   return (
-      //     <FinishPatient
-      //       cabinet={cabinet}
-      //       queueName={queue}
-      //       patientFinishDoctor={patientFinishDoctor}
-      //       nextStep={nextStep}
-      //       patient={patient}
-      //       isReturn={isReturn}
-      //       nextDoctors={nextDoctors}
-      //       name={name}
-      //       isAdditional={isAdditional}
-      //       reload={reload}
-      //     />
-      //   );
+      case "break":
+        return <Break cabinet={cabinet} />;
+      case "nextDoctors":
+        return <NextDoctorsStep fetchUrl="queue" />;
+      case "finishPatient":
+        return <FinishPatientStep cabinet={cabinet} personalId={doctor} />;
       default:
         null;
     }
@@ -214,7 +189,6 @@ const mapState = (state: RootState) => ({
 });
 
 const mapDispatch = (dispatch: Dispatch) => ({
-  stopBreak: dispatch.controllerPage.stopBreak,
   startBreak: dispatch.controllerPage.startBreak,
   reload: dispatch.controllerPage.reload,
   nextStep: dispatch.controllerPage.nextStep,

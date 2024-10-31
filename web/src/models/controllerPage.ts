@@ -5,8 +5,9 @@ export interface Patient {
   number: string;
   nowReturn: null | true;
   isGold: boolean;
-  doctors: string[];
-  returnTo: string[];
+  steps: string[];
+  returns: string[];
+  prev: { profile: string; presonalId: string }[];
 }
 
 export interface ControllerPageState {
@@ -77,7 +78,8 @@ export const controllerPage = createModel<RootModel>()({
     },
 
     setAdditional(state, payload) {
-      return { ...state, isAdditional: payload };
+      const isReturn = payload ? false : true;
+      return { ...state, isAdditional: payload, isReturn };
     },
 
     finishBreak(state) {
@@ -109,15 +111,18 @@ export const controllerPage = createModel<RootModel>()({
     },
 
     startBreak(state) {
-      return { ...state, isBreak: true };
-    },
-
-    stopBreak(state) {
-      return { ...state, isBreak: false };
+      return { ...state, isBreak: true, step: "break" };
     },
 
     reload(state) {
-      return createEmptyControllerPageState();
+      return {
+        ...state,
+        patient: null,
+        nextDoctors: [],
+        isBreak: false,
+        patientFinishDoctor: "",
+        step: "getPatient",
+      };
     },
   },
   effects: (dispatch) => ({}),

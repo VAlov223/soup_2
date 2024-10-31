@@ -1,36 +1,34 @@
 import React from "react";
 import * as styles from "./NextDoctors.module.css";
 import ready from "../../assets/ready.svg";
+import prev from "../../assets/prev.svg";
 import load from "../../assets/loadData.gif";
 import { Patient } from "../../models/controllerPage";
+import { RootState, Dispatch } from "../../store";
+import { connect } from "react-redux";
+import { MAIN_URL } from "../../utils";
 
-interface NextDoctorsProps {
-  patient: Patient | null;
-  addNextDoctor: (value: string) => void;
-  nextDoctors: string[];
-  queueName: string;
-  isReturn: boolean;
-  changeReturn: () => void;
+interface NextDoctorsPropsNative {
   fetchUrl: string;
-  nextStep: () => void;
 }
 
-export function NextDoctors(props: NextDoctorsProps) {
-  const { queueName, nextDoctors, addNextDoctor, patient } = props;
+export function NextDoctors(props: NextDoctorComponentProps) {
+  const { queue, addNextDoctor, patient, nextDoctors } = props;
   const [allDoctors, setAllDoctors] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
+
+  console.log(props.isAdditional)
+  const patientPrevs = patient?.prev
+    ? patient?.prev.map((element) => element.profile)
+    : [];
 
   React.useEffect(() => {
     const getData = async () => {
       try {
         setLoading(true);
-        const baseUrl = `${window.location.protocol}//${window.location.host}/`;
-        // const data = await fetch(`${baseUrl}${fetchUrl}/?search=${search}`);
-        console.log(20);
-        const data = await fetch(`http://localhost:3000${props.fetchUrl}`);
+        const data = await fetch(`${MAIN_URL}${props.fetchUrl}`);
         const jsonData = await data.json();
-        const realData = jsonData.queues ? jsonData.queues : [];
-        console.log(realData);
+        const realData = jsonData?.map((element: any) => element.name);
         setAllDoctors(realData);
         setLoading(false);
       } catch (err) {
@@ -43,23 +41,27 @@ export function NextDoctors(props: NextDoctorsProps) {
 
   const renderDoctorButton = () => {
     return allDoctors.map((element, index) => {
-      if (element == props.queueName) {
+      if (element == props.queue) {
         return (
-          <div
-            className={`col-3 mb-2 ${styles.nextButton} align-items-center`}
-            onClick={props.changeReturn}
-          >
-            Не возвращать пациета ко мне
-            {!props.isReturn ? (
-              <img
-                src={ready}
-                width={20}
-                height={20}
-                className="position-absolute"
-                style={{ top: -5, right: -10 }}
-              />
-            ) : null}
-          </div>
+          <>
+            {!props.isAdditional && (
+              <div
+                className={`col-3 mb-2 ${styles.nextButton} align-items-center`}
+                onClick={props.changeReturn}
+              >
+                Не возвращать пациета ко мне
+                {!props.isReturn ? (
+                  <img
+                    src={ready}
+                    width={20}
+                    height={20}
+                    className="position-absolute"
+                    style={{ top: -5, right: -10 }}
+                  />
+                ) : null}
+              </div>
+            )}
+          </>
         );
       }
 
@@ -68,23 +70,29 @@ export function NextDoctors(props: NextDoctorsProps) {
           className={`col-3 mb-2 ${styles.nextButton} d-flex align-items-center`}
           onClick={(ev: any) => addNextDoctor(element)}
           style={{
-            pointerEvents:
-              props.patient?.doctors.includes(element) ||
-              props.patient?.returnTo.includes(element)
-                ? "none"
-                : "auto",
+            pointerEvents: props.patient?.steps?.includes(element)
+              ? "none"
+              : "auto",
           }}
         >
           {element}
           {nextDoctors.includes(element) ||
-          props.patient?.doctors.includes(element) ||
-          props.patient?.returnTo.includes(element) ? (
+          props.patient?.steps?.includes(element) ? (
             <img
               src={ready}
               width={20}
               height={20}
               className="position-absolute"
               style={{ top: -5, right: -10 }}
+            />
+          ) : null}
+          {patientPrevs.includes(element) ? (
+            <img
+              src={prev}
+              width={20}
+              height={20}
+              className="position-absolute"
+              style={{ top: -5, right: 10 }}
             />
           ) : null}
         </div>
@@ -122,3 +130,25 @@ export function NextDoctors(props: NextDoctorsProps) {
     </div>
   );
 }
+
+const mapState = (state: RootState) => ({
+  patient: state.controllerPage.patient,
+  queue: state.controllerPage.queue,
+  isReturn: state.controllerPage.isReturn,
+  isAdditional: state.controllerPage.isAdditional,
+  nextDoctors: state.controllerPage.nextDoctors,
+});
+
+const mapDispatch = (dispatch: Dispatch) => ({
+  changeReturn: dispatch.controllerPage.changeReturn,
+  addNextDoctor: dispatch.controllerPage.addNextDoctor,
+  nextStep: dispatch.controllerPage.nextStep,
+});
+
+type StateProps = ReturnType<typeof mapState>;
+type DispatchProps = ReturnType<typeof mapDispatch>;
+type NextDoctorComponentProps = NextDoctorsPropsNative &
+  StateProps &
+  DispatchProps;
+
+export const NextDoctorsStep = connect(mapState, mapDispatch)(NextDoctors);

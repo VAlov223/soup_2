@@ -31,10 +31,8 @@ export function GetPatient(props: GetPatientComponentProps) {
       2000
     );
 
-    () => {
-      if (polling.current) {
-        clearInterval(polling.current);
-      }
+    return () => {
+      clearInterval(polling.current);
     };
   }, []);
 
@@ -52,9 +50,7 @@ export function GetPatient(props: GetPatientComponentProps) {
         }, 3000);
       }
     } else {
-      if (polling.current) {
-        clearInterval(polling.current);
-      }
+      clearInterval(polling.current);
     }
   }, [patient?.number]);
 
@@ -107,7 +103,6 @@ const mapState = (state: RootState) => ({
   isAdditional: state.controllerPage.isAdditional,
   patient: state.controllerPage.patient,
   queue: state.controllerPage.queue,
-  isBreak: state.controllerPage.isBreak,
 });
 
 const mapDispatch = (dispatch: Dispatch) => ({
